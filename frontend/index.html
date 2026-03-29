@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EduAgent AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Euclidean+Circles:wght@400;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/frontend/css/styles.css">
+</head>
+<body>
+<div id="root"></div>
+<!-- Orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- ════ FLOATING NAV ════ -->
+<nav class="float-nav" id="floatNav">
+  <div class="nav-logo">
+    <div class="nav-logo-fox">🎓</div>
+    <span class="nav-logo-text">EduAgent</span>
+  </div>
+
+  <div class="nav-pill active" id="npDash" onclick="go('dash')">
+    <span class="pip"></span>
+    <span class="nav-icon">⬡</span> Dashboard
+  </div>
+  <div class="nav-pill" id="npUpload" onclick="go('upload')">
+    <span class="pip"></span>
+    <span class="nav-icon">↑</span> Upload
+  </div>
+  <div class="nav-pill" id="npEval" onclick="go('eval')">
+    <span class="pip"></span>
+    <span class="nav-icon">◈</span> Evaluate
+  </div>
+  <div class="nav-pill" id="npStudents" onclick="go('students')">
+    <span class="pip"></span>
+    <span class="nav-icon">◎</span> Students
+  </div>
+  <div class="nav-pill" id="npFeedback" onclick="go('feedback')">
+    <span class="pip"></span>
+    <span class="nav-icon">✦</span> Feedback
+  </div>
+  <div class="nav-pill" id="npPlan" onclick="go('plan')">
+    <span class="pip"></span>
+    <span class="nav-icon">≡</span> Study Plan
+  </div>
+
+  <div class="nav-wallet" onclick="go('login')">
+    <div class="wallet-avatar"></div>
+    <span class="wallet-addr" id="walletLabel">0xRK…4f2a</span>
+  </div>
+</nav>
+
+<!-- ════ LOGIN ════ -->
+<div class="page active" id="page-login">
+  <div class="login-wrap">
+    <div class="login-fox">🎓</div>
+    <div class="login-title">EduAgent AI</div>
+    <div class="login-sub">Intelligence layer for modern education</div>
+
+    <div class="role-row">
+      <div class="role-chip on" id="rcTeacher" onclick="setRole('teacher')">🧑‍🏫 &nbsp;Teacher</div>
+      <div class="role-chip"    id="rcStudent" onclick="setRole('student')">🎓 &nbsp;Student</div>
+    </div>
+
+    <div class="field"><label>Email</label><input type="email" placeholder="you@school.edu"/></div>
+    <div class="field"><label>Password</label><input type="password" placeholder="••••••••"/></div>
+
+    <button class="btn-orange" onclick="enterApp()">Unlock →</button>
+
+    <div class="divider"><span>or continue with</span></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-g" style="flex:1;justify-content:center;">🔑 &nbsp;SSO</button>
+      <button class="btn btn-g" style="flex:1;justify-content:center;">🏫 &nbsp;Google</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ DASHBOARD ════ -->
+<div class="page" id="page-dash">
+<div class="section">
+
+  <!-- Account strip -->
+  <div class="mm-card glow" style="margin-bottom:16px;">
+    <div class="account-strip">
+      <div class="account-jazzicon"></div>
+      <div class="account-info">
+        <div class="account-name" id="acName">Ravi Kumar</div>
+        <div class="account-address mono" id="acAddr">ID: EDU-0x4f2a · Class Admin</div>
+      </div>
+      <div>
+        <div class="account-badge" id="acRole">Teacher</div>
+        <div class="net-dot" style="margin-top:6px;justify-content:flex-end;">Live</div>
+      </div>
+    </div>
+
+    <div class="balance-big">
+      <div class="balance-label">Overall Class Score</div>
+      <div class="balance-value">76.4<span style="font-size:22px;color:rgba(255,255,255,0.3)"> avg</span></div>
+      <div class="balance-delta">↑ 2.3 pts from last term</div>
+    </div>
+
+    <div class="action-row">
+      <div class="action-btn primary" onclick="go('upload')">
+        <div class="action-icon-wrap">📤</div>
+        <div class="action-label">Upload</div>
+      </div>
+      <div class="action-btn" onclick="go('eval')">
+        <div class="action-icon-wrap">🤖</div>
+        <div class="action-label">Evaluate</div>
+      </div>
+      <div class="action-btn" onclick="go('students')">
+        <div class="action-icon-wrap">👥</div>
+        <div class="action-label">Students</div>
+      </div>
+      <div class="action-btn" onclick="go('feedback')">
+        <div class="action-icon-wrap">💡</div>
+        <div class="action-label">Feedback</div>
+      </div>
+      <div class="action-btn" onclick="go('plan')">
+        <div class="action-icon-wrap">📅</div>
+        <div class="action-label">Study Plan</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid-4" style="margin-bottom:16px;">
+    <div class="mini-stat">
+      <div class="mini-stat-label">Students</div>
+      <div class="mini-stat-val white">248</div>
+      <div class="mini-stat-delta up">▲ 12 this month</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-label">Scripts</div>
+      <div class="mini-stat-val orange">1,840</div>
+      <div class="mini-stat-delta up">▲ 8% week</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-label">AI Accuracy</div>
+      <div class="mini-stat-val green">99.2%</div>
+      <div class="mini-stat-delta up">▲ 0.4% improved</div>
+    </div>
+    <div class="mini-stat">
+      <div class="mini-stat-label">Need Help</div>
+      <div class="mini-stat-val red">12%</div>
+      <div class="mini-stat-delta down">▼ improving</div>
+    </div>
+  </div>
+
+  <!-- Subject assets (like token list) -->
+  <div class="slabel">Subject performance <a onclick="go('students')">View all →</a></div>
+  <div class="mm-card glow" style="margin-bottom:16px;">
+    <div class="token-list">
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(246,133,27,0.1);">➕</div>
+        <div><div class="token-name">Mathematics</div><div class="token-sub">Algebra · Calculus · Statistics</div></div>
+        <div class="token-val">
+          <div class="token-amount">87.2</div>
+          <div class="token-change up">▲ 3.1 pts</div>
+        </div>
+      </div>
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(59,130,246,0.1);">🔬</div>
+        <div><div class="token-name">Science</div><div class="token-sub">Physics · Chemistry · Bio</div></div>
+        <div class="token-val">
+          <div class="token-amount">72.5</div>
+          <div class="token-change down">▼ 1.8 pts</div>
+        </div>
+      </div>
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(34,197,94,0.1);">📖</div>
+        <div><div class="token-name">English</div><div class="token-sub">Grammar · Literature · Composition</div></div>
+        <div class="token-val">
+          <div class="token-amount">79.4</div>
+          <div class="token-change up">▲ 5.6 pts</div>
+        </div>
+      </div>
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(234,179,8,0.1);">📜</div>
+        <div><div class="token-name">History</div><div class="token-sub">Modern · Ancient · World</div></div>
+        <div class="token-val">
+          <div class="token-amount">68.1</div>
+          <div class="token-change down">▼ 2.2 pts</div>
+        </div>
+      </div>
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(168,85,247,0.1);">💻</div>
+        <div><div class="token-name">Computer Science</div><div class="token-sub">Algorithms · Data Structures</div></div>
+        <div class="token-val">
+          <div class="token-amount">91.7</div>
+          <div class="token-change up">▲ 6.4 pts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent activity -->
+  <div class="slabel">Recent evaluations <a onclick="go('eval')">See all →</a></div>
+  <div class="mm-card glow">
+    <div class="activity-item">
+      <div class="activity-dot eval">🤖</div>
+      <div>
+        <div class="activity-name">Ananya Sharma — Mathematics</div>
+        <div class="activity-sub">28 Mar 2026 · AI evaluated · 2.4s</div>
+      </div>
+      <div class="activity-score" style="color:var(--green)">92</div>
+    </div>
+    <div class="activity-item">
+      <div class="activity-dot eval">🤖</div>
+      <div>
+        <div class="activity-name">Rohan Patel — Science</div>
+        <div class="activity-sub">27 Mar 2026 · Reviewing</div>
+      </div>
+      <div class="activity-score" style="color:var(--yellow)">74</div>
+    </div>
+    <div class="activity-item">
+      <div class="activity-dot down">⚠</div>
+      <div>
+        <div class="activity-name">Priya Nair — English</div>
+        <div class="activity-sub">26 Mar 2026 · Needs review</div>
+      </div>
+      <div class="activity-score" style="color:var(--red)">58</div>
+    </div>
+    <div class="activity-item">
+      <div class="activity-dot up">✓</div>
+      <div>
+        <div class="activity-name">Karthik Rajan — History</div>
+        <div class="activity-sub">25 Mar 2026 · Confirmed</div>
+      </div>
+      <div class="activity-score" style="color:var(--green)">88</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════ UPLOAD ════ -->
+<div class="page" id="page-upload">
+<div class="section">
+  <div class="page-head">
+    <div><h1>Upload Scripts</h1><div class="sub">Drag & drop or browse answer sheets</div></div>
+    <button class="btn btn-o">⚡ Auto-Evaluate All</button>
+  </div>
+
+  <div class="drop-zone" id="dropZone"
+    ondragover="event.preventDefault();this.classList.add('drag')"
+    ondragleave="this.classList.remove('drag')"
+    ondrop="event.preventDefault();this.classList.remove('drag');showFiles()">
+    <span class="drop-zone-icon">📄</span>
+    <h3>Drop answer scripts here</h3>
+    <p style="margin-bottom:16px;">PDF, JPEG, PNG · up to 50 MB each</p>
+    <button class="btn btn-o" style="margin:0 auto;">Browse Files</button>
+  </div>
+
+  <div id="fileList" style="display:none;margin-top:16px;">
+    <div class="slabel" style="margin-bottom:12px;">Queued files</div>
+    <div class="mm-card glow">
+      <table class="mm-table">
+        <thead><tr><th>File</th><th>Student</th><th>Subject</th><th>Size</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="mono">script_ananya_math.pdf</td>
+            <td>Ananya Sharma</td><td>Mathematics</td><td>2.4 MB</td>
+            <td><span class="pill pill-orange">Processing…</span></td>
+            <td><button class="btn btn-sm btn-g">Cancel</button></td>
+          </tr>
+          <tr>
+            <td class="mono">script_rohan_sci.jpg</td>
+            <td>Rohan Patel</td><td>Science</td><td>1.8 MB</td>
+            <td><span class="pill pill-green">OCR Done</span></td>
+            <td><button class="btn btn-sm btn-o" onclick="go('eval')">Evaluate →</button></td>
+          </tr>
+          <tr>
+            <td class="mono">script_priya_eng.pdf</td>
+            <td>Priya Nair</td><td>English</td><td>3.1 MB</td>
+            <td><span class="pill pill-blue">Queued</span></td>
+            <td><button class="btn btn-sm btn-g">Cancel</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- OCR info -->
+  <div style="margin-top:16px;" class="mm-card glow">
+    <div style="padding:18px 20px;">
+      <div class="slabel" style="margin-bottom:10px;">OCR Engine Status</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="net-dot">Active · 3 workers</div>
+        <div style="flex:1;">
+          <div class="prog-track"><div class="prog-fill" style="width:68%"></div></div>
+        </div>
+        <div style="font-size:12px;color:var(--t3);">68% queue processed</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════ EVALUATE ════ -->
+<div class="page" id="page-eval">
+<div class="section">
+  <div class="page-head">
+    <div><h1>AI Evaluation</h1><div class="sub">Script #1 of 3 in queue</div></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-g">← Prev</button>
+      <button class="btn btn-o">Next →</button>
+    </div>
+  </div>
+
+  <!-- Student strip -->
+  <div class="mm-card glow" style="margin-bottom:16px;">
+    <div class="account-strip">
+      <div class="account-jazzicon" style="background:conic-gradient(#22c55e 0deg,#16a34a 120deg,#1f1f27 120deg,#1f1f27 240deg,#4ade80 240deg);"></div>
+      <div class="account-info">
+        <div class="account-name">Ananya Sharma</div>
+        <div class="account-address mono">ID: STU-0x7c9b · Class 11B</div>
+      </div>
+      <span class="pill pill-green">AI Evaluated</span>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Answer panel -->
+    <div class="mm-card glow">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;">📝 OCR Extracted Answer</div>
+      <div style="padding:18px 20px;font-size:13px;line-height:1.9;color:var(--t2);font-family:'Space Mono',monospace;min-height:180px;">
+        To find roots of x² + 5x + 6 = 0<br/>
+        using factorisation method:<br/><br/>
+        Find: a×b = 6, a+b = 5 → 2, 3<br/>
+        ∴ (x + 2)(x + 3) = 0<br/>
+        x = −2 &nbsp;or&nbsp; x = −3<br/><br/>
+        Verify: (−2)²+5(−2)+6 = 0 ✓<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(−3)²+5(−3)+6 = 0 ✓
+      </div>
+    </div>
+
+    <!-- Score panel -->
+    <div class="mm-card glow">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;">🎯 AI Score</div>
+      <div class="ring-wrap">
+        <div class="ring">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle class="ring-track" cx="65" cy="65" r="55" fill="none" stroke-width="10"/>
+            <circle class="ring-fill" cx="65" cy="65" r="55" fill="none" stroke="var(--orange)" stroke-width="10" stroke-linecap="round"/>
+          </svg>
+          <div class="ring-inner">
+            <div class="ring-num">92</div>
+            <div class="ring-sub">/ 100</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:0 20px 16px;display:flex;flex-direction:column;gap:6px;">
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
+          <span style="color:var(--t3);">Concept accuracy</span><span style="color:var(--green);font-weight:700;">Excellent</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
+          <span style="color:var(--t3);">Steps shown</span><span style="color:var(--green);font-weight:700;">Complete</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
+          <span style="color:var(--t3);">Verification</span><span style="color:var(--green);font-weight:700;">Both roots ✓</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
+          <span style="color:var(--t3);">Alt. method</span><span style="color:var(--yellow);font-weight:700;">Not shown</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI feedback card -->
+  <div class="mm-card glow">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;">🤖 AI Feedback</div>
+    <div style="padding:18px 20px;font-size:13px;line-height:1.9;color:var(--t2);">
+      Excellent work. Ananya demonstrates clear mastery of quadratic factorisation with a textbook-quality step-by-step solution. Both roots verified correctly — this is rare and shows mathematical maturity.
+      <br/><br/>
+      <span style="color:var(--yellow)">⚠ Minor:</span> No mention of domain restriction or alternative quadratic formula method. 
+      <span style="color:var(--red)">−8 marks</span> deducted for omitting the real number domain statement.
+    </div>
+    <div style="padding:12px 20px 16px;display:flex;gap:8px;">
+      <button class="btn btn-o btn-sm">✓ Confirm Score</button>
+      <button class="btn btn-g btn-sm">✎ Override</button>
+      <button class="btn btn-g btn-sm">📤 Send to Student</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════ STUDENTS ════ -->
+<div class="page" id="page-students">
+<div class="section">
+  <div class="page-head">
+    <div><h1>Students</h1><div class="sub">248 enrolled · Term 2 2025–26</div></div>
+    <button class="btn btn-o">+ Add Student</button>
+  </div>
+
+  <div class="mm-card glow">
+    <table class="mm-table">
+      <thead>
+        <tr><th>Student</th><th>Class</th><th>Average</th><th>Progress</th><th>Status</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr onclick="go('feedback')">
+          <td><div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(var(--orange) 0deg,var(--orange3) 120deg,#1a1a1a 120deg);flex-shrink:0;border:1px solid rgba(246,133,27,0.3);"></div>
+            <div><div style="font-weight:700;font-size:13px;">Ananya Sharma</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x7c9b</div></div>
+          </div></td>
+          <td>11B</td>
+          <td style="color:var(--green);font-weight:800;font-size:15px;">89.2</td>
+          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:89%"></div></div></div></td>
+          <td><span class="pill pill-green">On Track</span></td>
+          <td><button class="btn btn-sm btn-g">View →</button></td>
+        </tr>
+        <tr onclick="go('feedback')">
+          <td><div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#3b82f6 0deg,#1d4ed8 180deg,#1a1a1a 180deg);flex-shrink:0;border:1px solid rgba(59,130,246,0.3);"></div>
+            <div><div style="font-weight:700;font-size:13px;">Rohan Patel</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x3a4d</div></div>
+          </div></td>
+          <td>11A</td>
+          <td style="color:var(--yellow);font-weight:800;font-size:15px;">72.5</td>
+          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:72%;background:linear-gradient(90deg,var(--yellow),#ca8a04)"></div></div></div></td>
+          <td><span class="pill pill-yellow">Improving</span></td>
+          <td><button class="btn btn-sm btn-g">View →</button></td>
+        </tr>
+        <tr onclick="go('feedback')">
+          <td><div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#ec4899 0deg,#db2777 180deg,#1a1a1a 180deg);flex-shrink:0;border:1px solid rgba(236,72,153,0.3);"></div>
+            <div><div style="font-weight:700;font-size:13px;">Priya Nair</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x9f1e</div></div>
+          </div></td>
+          <td>10C</td>
+          <td style="color:var(--red);font-weight:800;font-size:15px;">58.1</td>
+          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:58%;background:linear-gradient(90deg,var(--red),#991b1b)"></div></div></div></td>
+          <td><span class="pill pill-red">Needs Help</span></td>
+          <td><button class="btn btn-sm btn-g">View →</button></td>
+        </tr>
+        <tr onclick="go('feedback')">
+          <td><div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#22c55e 0deg,#16a34a 240deg,#1a1a1a 240deg);flex-shrink:0;border:1px solid rgba(34,197,94,0.3);"></div>
+            <div><div style="font-weight:700;font-size:13px;">Karthik Rajan</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x2b8c</div></div>
+          </div></td>
+          <td>12A</td>
+          <td style="color:var(--green);font-weight:800;font-size:15px;">91.7</td>
+          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:92%"></div></div></div></td>
+          <td><span class="pill pill-green">Excellent</span></td>
+          <td><button class="btn btn-sm btn-g">View →</button></td>
+        </tr>
+        <tr>
+          <td><div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#a78bfa 0deg,#7c3aed 180deg,#1a1a1a 180deg);flex-shrink:0;border:1px solid rgba(167,139,250,0.3);"></div>
+            <div><div style="font-weight:700;font-size:13px;">Meera Iyer</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0xd3f7</div></div>
+          </div></td>
+          <td>10B</td>
+          <td style="color:var(--orange);font-weight:800;font-size:15px;">80.4</td>
+          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:80%"></div></div></div></td>
+          <td><span class="pill pill-orange">On Track</span></td>
+          <td><button class="btn btn-sm btn-g">View →</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ════ FEEDBACK ════ -->
+<div class="page" id="page-feedback">
+<div class="section">
+  <div class="page-head">
+    <div><h1>AI Feedback</h1><div class="sub">Ananya Sharma · Last 6 evaluations</div></div>
+    <span class="pill pill-orange" style="font-size:12px;padding:6px 14px;">🤖 AI Generated</span>
+  </div>
+
+  <!-- Student score card -->
+  <div class="mm-card glow" style="margin-bottom:16px;">
+    <div class="balance-big" style="padding:20px 24px 16px;">
+      <div class="balance-label">Average Score</div>
+      <div class="balance-value">89.2</div>
+      <div class="balance-delta">▲ 4.1 pts improvement from last term</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--border);">
+      <div style="padding:14px 20px;border-right:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Best Subject</div>
+        <div style="font-size:15px;font-weight:800;color:var(--green);">CS · 96</div>
+      </div>
+      <div style="padding:14px 20px;border-right:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Weakest</div>
+        <div style="font-size:15px;font-weight:800;color:var(--red);">Art · 54</div>
+      </div>
+      <div style="padding:14px 20px;">
+        <div style="font-size:10px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Trend</div>
+        <div style="font-size:15px;font-weight:800;color:var(--orange);">↑ Rising</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel" style="margin-bottom:12px;">Strengths</div>
+  <div class="mm-card glow" style="margin-bottom:16px;">
+    <div class="fb-item">
+      <div class="fb-dot s"></div>
+      <div><div class="fb-h">Strong logical reasoning in Mathematics</div><div class="fb-p">Consistently applies step-by-step problem solving. Verification of answers reflects deep understanding and care.</div></div>
+    </div>
+    <div class="fb-item">
+      <div class="fb-dot s"></div>
+      <div><div class="fb-h">Excellent command of English grammar</div><div class="fb-p">Essay structures are well organised with clear topic sentences, strong vocabulary, and coherent arguments.</div></div>
+    </div>
+    <div class="fb-item">
+      <div class="fb-dot s"></div>
+      <div><div class="fb-h">Top performer in Computer Science</div><div class="fb-p">Algorithm implementation is clean and well-commented. 96/100 in the last three consecutive evaluations.</div></div>
+    </div>
+  </div>
+
+  <div class="slabel" style="margin-bottom:12px;">Areas to improve</div>
+  <div class="mm-card glow" style="margin-bottom:16px;">
+    <div class="fb-item">
+      <div class="fb-dot w"></div>
+      <div><div class="fb-h">Science: Diagram labelling</div><div class="fb-p">Biological diagrams are missing key labels in 3 of the last 4 tests. Focus on NCERT chapters 6–9.</div></div>
+    </div>
+    <div class="fb-item">
+      <div class="fb-dot w"></div>
+      <div><div class="fb-h">Art & Design: Composition score dropped</div><div class="fb-p">Down 8 pts from last term. Practising past paper compositions is strongly recommended before next evaluation.</div></div>
+    </div>
+  </div>
+
+  <div class="slabel" style="margin-bottom:12px;">AI Tips</div>
+  <div class="mm-card glow">
+    <div class="fb-item">
+      <div class="fb-dot t"></div>
+      <div><div class="fb-h">20-minute daily weak-subject sessions</div><div class="fb-p">Consistent daily revision outperforms cramming by 3.4× on average. Morning slots are optimal based on your schedule.</div></div>
+    </div>
+    <div class="fb-item">
+      <div class="fb-dot t"></div>
+      <div><div class="fb-h">Create a History timeline chart</div><div class="fb-p">Chronological ordering errors are common. A visual timeline covering Modern India 1857–1947 will lock in those facts fast.</div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════ STUDY PLAN ════ -->
+<div class="page" id="page-plan">
+<div class="section">
+  <div class="page-head">
+    <div><h1>Study Plan</h1><div class="sub">4-week AI-generated schedule · Ananya Sharma</div></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-g">↓ Export</button>
+      <button class="btn btn-o">⟳ Regenerate</button>
+    </div>
+  </div>
+
+  <div class="mm-card glow" style="margin-bottom:16px;padding:14px 20px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t2);">
+    <span style="font-size:18px;">⚡</span>
+    Generated by <b style="color:var(--orange);">EduAgent AI</b> based on your last 6 scores and upcoming exam calendar. Click any topic to get AI resources.
+  </div>
+
+  <div class="mm-card glow">
+    <div style="padding:8px 20px 4px;">
+      <div class="tl">
+        <div class="tl-row">
+          <div class="tl-spine"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-body">
+            <div class="tl-week">Week 1 · Apr 1–7</div>
+            <div class="tl-title">Foundation & Gap Analysis</div>
+            <div class="tl-chips">
+              <span class="tl-chip">Science Ch. 6–9</span>
+              <span class="tl-chip">History timelines</span>
+              <span class="tl-chip">Math practice sets</span>
+              <span class="tl-chip">Revision notes</span>
+            </div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-spine"><div class="tl-dot" style="background:var(--green);box-shadow:0 0 10px rgba(34,197,94,0.6);"></div><div class="tl-line" style="background:linear-gradient(180deg,rgba(34,197,94,0.4),transparent);"></div></div>
+          <div class="tl-body">
+            <div class="tl-week">Week 2 · Apr 8–14</div>
+            <div class="tl-title">Intensive Subject Focus</div>
+            <div class="tl-chips">
+              <span class="tl-chip">Diagram practice</span>
+              <span class="tl-chip">Essay writing</span>
+              <span class="tl-chip">Past papers</span>
+              <span class="tl-chip">Art composition</span>
+            </div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-spine"><div class="tl-dot" style="background:var(--blue);box-shadow:0 0 10px rgba(59,130,246,0.6);"></div><div class="tl-line" style="background:linear-gradient(180deg,rgba(59,130,246,0.4),transparent);"></div></div>
+          <div class="tl-body">
+            <div class="tl-week">Week 3 · Apr 15–21</div>
+            <div class="tl-title">Mock Tests & Error Analysis</div>
+            <div class="tl-chips">
+              <span class="tl-chip">Full mock test</span>
+              <span class="tl-chip">Error review</span>
+              <span class="tl-chip">Speed drills</span>
+              <span class="tl-chip">Peer revision</span>
+            </div>
+          </div>
+        </div>
+        <div class="tl-row">
+          <div class="tl-spine"><div class="tl-dot" style="background:var(--yellow);box-shadow:0 0 10px rgba(234,179,8,0.6);"></div></div>
+          <div class="tl-body">
+            <div class="tl-week">Week 4 · Apr 22–28</div>
+            <div class="tl-title">Final Revision & Confidence</div>
+            <div class="tl-chips">
+              <span class="tl-chip">Formula sheets</span>
+              <span class="tl-chip">Quick revision</span>
+              <span class="tl-chip">Light practice</span>
+              <span class="tl-chip">Rest & wellbeing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily schedule preview -->
+  <div style="margin-top:16px;" class="slabel">Daily schedule preview</div>
+  <div class="mm-card glow">
+    <div class="token-list">
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(246,133,27,0.1);font-size:13px;">6AM</div>
+        <div><div class="token-name">Morning session</div><div class="token-sub">Science · 45 min</div></div>
+        <div class="token-val"><span class="pill pill-orange">Priority</span></div>
+      </div>
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(59,130,246,0.1);font-size:13px;">4PM</div>
+        <div><div class="token-name">Afternoon review</div><div class="token-sub">Mathematics · 30 min</div></div>
+        <div class="token-val"><span class="pill pill-green">Strength</span></div>
+      </div>
+      <div class="token-row">
+        <div class="token-icon" style="background:rgba(234,179,8,0.1);font-size:13px;">7PM</div>
+        <div><div class="token-name">Evening focus</div><div class="token-sub">History · 30 min · weak area</div></div>
+        <div class="token-val"><span class="pill pill-red">Needs Work</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+let role = 'teacher';
+
+function setRole(r) {
+  role = r;
+  document.getElementById('rcTeacher').classList.toggle('on', r === 'teacher');
+  document.getElementById('rcStudent').classList.toggle('on', r === 'student');
+}
+
+function enterApp() {
+  go('dash');
+  const isStudent = role === 'student';
+  document.getElementById('acName').textContent    = isStudent ? 'Ananya Sharma' : 'Ravi Kumar';
+  document.getElementById('acAddr').textContent    = isStudent ? 'ID: STU-0x7c9b · Class 11B' : 'ID: EDU-0x4f2a · Class Admin';
+  document.getElementById('acRole').textContent    = isStudent ? 'Student' : 'Teacher';
+  document.getElementById('walletLabel').textContent = isStudent ? '0xAS…7c9b' : '0xRK…4f2a';
+}
+
+const pills = {
+  'dash': 'npDash', 'upload': 'npUpload', 'eval': 'npEval',
+  'students': 'npStudents', 'feedback': 'npFeedback', 'plan': 'npPlan'
+};
+
+function go(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+
+  const pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+
+  const pill = document.getElementById(pills[id]);
+  if (pill) pill.classList.add('active');
+
+  // Hide nav on login
+  document.getElementById('floatNav').style.opacity = (id === 'login') ? '0' : '1';
+  document.getElementById('floatNav').style.pointerEvents = (id === 'login') ? 'none' : 'all';
+}
+
+function showFiles() {
+  const fl = document.getElementById('fileList');
+  fl.style.display = 'block';
+  fl.style.animation = 'fadeUp 0.35s ease both';
+}
+
+// Start hidden nav
+document.getElementById('floatNav').style.opacity = '0';
+document.getElementById('floatNav').style.pointerEvents = 'none';
+document.getElementById('floatNav').style.transition = 'opacity 0.4s ease';
+</script>
+</body>
+</html>

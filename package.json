@@ -1,0 +1,21 @@
+{
+  "name": "smart-evaluation",
+  "version": "1.0.0",
+  "description": "AI-powered evaluation system for teachers and students",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "ai-services": "cd ai-services && npm start",
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install && cd ../ai-services && npm install",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start"
+  },
+  "keywords": ["education", "ai", "evaluation", "ocr", "learning"],
+  "author": "Smart Evaluation Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
