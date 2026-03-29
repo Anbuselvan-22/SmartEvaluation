@@ -14,9 +14,10 @@ const authRoutes = require('./routes/authRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const evaluationRoutes = require('./routes/evaluationRoutes');
+const healthRoutes = require('./routes/healthRoutes');
 
 // Connect to database
-connectDB();
+// connectDB(); // Temporarily disabled for testing
 
 const app = express();
 
@@ -73,6 +74,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/teacher', teacherRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/evaluate', evaluationRoutes);
+app.use('/api/health', healthRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

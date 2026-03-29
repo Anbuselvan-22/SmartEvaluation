@@ -4,685 +4,1433 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>EduAgent AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Euclidean+Circles:wght@400;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/frontend/css/styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --ink: #0e0c1a;
+  --ink2: #1c1730;
+  --ink3: #2d2847;
+  --surface: #f5f3ff;
+  --surface2: #ede9fe;
+  --violet: #7c3aed;
+  --violet-light: #a78bfa;
+  --violet-glow: rgba(124,58,237,0.18);
+  --rose: #f43f5e;
+  --amber: #f59e0b;
+  --teal: #14b8a6;
+  --emerald: #10b981;
+  --sky: #38bdf8;
+  --white: #ffffff;
+  --card: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.1);
+  --text-muted: rgba(255,255,255,0.45);
+  --text-mid: rgba(255,255,255,0.72);
+  --radius: 18px;
+  --radius-sm: 10px;
+  --transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .logo { font-family: 'Syne', sans-serif; }
+
+/* ─── AMBIENT BG ─── */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.ambient::before {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%);
+  top: -200px; left: -150px;
+  animation: drift1 12s ease-in-out infinite alternate;
+}
+.ambient::after {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(244,63,94,0.14) 0%, transparent 70%);
+  bottom: -100px; right: -100px;
+  animation: drift2 10s ease-in-out infinite alternate;
+}
+@keyframes drift1 { from { transform: translate(0,0); } to { transform: translate(60px,40px); } }
+@keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(-40px,-30px); } }
+
+/* ─── APP SHELL ─── */
+.app { position: relative; z-index: 1; display: flex; min-height: 100vh; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: rgba(14,12,26,0.8);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+.logo-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--violet), var(--rose));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.logo span { background: linear-gradient(90deg, var(--violet-light), var(--sky)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.nav-section { margin-bottom: 8px; }
+.nav-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 0 10px 8px;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-mid);
+  transition: var(--transition);
+  margin-bottom: 2px;
+  position: relative;
+  overflow: hidden;
+}
+.nav-item::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, var(--violet-glow), transparent);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.nav-item:hover { color: var(--white); }
+.nav-item:hover::before { opacity: 1; }
+.nav-item.active {
+  color: var(--white);
+  background: linear-gradient(90deg, rgba(124,58,237,0.3), rgba(124,58,237,0.05));
+  border-left: 3px solid var(--violet);
+}
+.nav-item.active::before { opacity: 1; }
+.nav-icon { font-size: 17px; width: 22px; text-align: center; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--violet);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+/* ─── FLOATING NAVIGATION ─── */
+.float-nav {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14,12,26,0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+}
+
+.nav-pill:hover {
+  background: rgba(124,58,237,0.2);
+  transform: translateY(-2px);
+}
+
+.nav-pill.active {
+  background: var(--violet);
+  color: var(--white);
+}
+
+.nav-wallet {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.wallet-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet), var(--sky));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--white);
+}
+
+.wallet-addr {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'Space Mono', monospace;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.user-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.user-chip:hover { background: var(--card); }
+.avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet), var(--sky));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700;
+}
+.user-name { font-size: 13px; font-weight: 600; }
+.user-role { font-size: 11px; color: var(--text-muted); }
+
+/* ─── MAIN CONTENT ─── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* ─── PAGES ─── */
+.page { display: none; animation: pageIn 0.45s cubic-bezier(0.4,0,0.2,1); }
+.page.active { display: block; }
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── TOP BAR ─── */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 36px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(14,12,26,0.5);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar h2 { font-size: 20px; font-weight: 700; }
+.topbar-right { display: flex; align-items: center; gap: 14px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-size:13px; font-weight: 600;
+  cursor: pointer; border: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: var(--transition);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--violet), #9333ea);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(124,58,237,0.5); }
+.btn-ghost {
+  background: var(--card);
+  color: var(--text-mid);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { color: var(--white); border-color: rgba(255,255,255,0.25); }
+
+/* ─── INNER PAGE CONTENT ─── */
+.content { padding: 32px 36px; }
+
+/* ─── STAT CARDS ─── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition);
+  cursor: default;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: -40%; right: -20%;
+  width: 120px; height: 120px;
+  border-radius: 50%;
+  opacity: 0.12;
+  transition: var(--transition);
+}
+.stat-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.2); }
+.stat-card:hover::after { transform: scale(1.3); opacity: 0.2; }
+.stat-card.violet::after { background: var(--violet); }
+.stat-card.rose::after   { background: var(--rose); }
+.stat-card.amber::after  { background: var(--amber); }
+.stat-card.teal::after   { background: var(--teal); }
+
+.stat-icon {
+  font-size: 24px; margin-bottom: 12px;
+  display: inline-block;
+  animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-size: 32px; font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-label { font-size: 13px; color: var(--text-muted); }
+.stat-delta {
+  font-size: 11px; font-weight: 600;
+  margin-top: 8px;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.stat-delta.up   { background: rgba(16,185,129,0.15); color: var(--emerald); }
+.stat-delta.down { background: rgba(244,63,94,0.15); color: var(--rose); }
+@keyframes pop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ─── SECTION TITLE ─── */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px; font-weight: 700;
+  margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.section-title span { font-size: 12px; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-weight: 400; cursor: pointer; }
+.section-title span:hover { color: var(--violet-light); }
+
+/* ─── TABLE ─── */
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+table { width: 100%; border-collapse: collapse; }
+thead { background: rgba(255,255,255,0.04); }
+thead th {
+  padding: 14px 20px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: left;
+}
+tbody tr {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  transition: background var(--transition);
+}
+tbody tr:hover { background: rgba(124,58,237,0.06); }
+tbody td { padding: 14px 20px; font-size: 14px; color: var(--text-mid); }
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+}
+.badge-green  { background: rgba(16,185,129,0.15); color: #34d399; }
+.badge-amber  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.badge-rose   { background: rgba(244,63,94,0.15);   color: #fb7185; }
+.badge-violet { background: rgba(124,58,237,0.2);   color: var(--violet-light); }
+
+/* ─── PROGRESS BAR ─── */
+.progress-wrap { background: rgba(255,255,255,0.08); border-radius: 999px; height: 6px; overflow: hidden; }
+.progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--violet), var(--sky));
+  animation: growBar 1.2s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes growBar { from { width: 0 !important; } }
+
+/* ─── CHART PLACEHOLDER ─── */
+.chart-row { display: grid; grid-template-columns: 2fr 1fr; gap: 18px; margin-bottom: 28px; }
+.chart-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.chart-card canvas { display: block; width: 100% !important; }
+
+/* ─── UPLOAD ZONE ─── */
+.upload-zone {
+  border: 2px dashed rgba(124,58,237,0.4);
+  border-radius: var(--radius);
+  padding: 56px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: rgba(124,58,237,0.04);
+  position: relative;
+  overflow: hidden;
+}
+.upload-zone::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 120%, rgba(124,58,237,0.12), transparent 60%);
+}
+.upload-zone:hover {
+  border-color: var(--violet);
+  background: rgba(124,58,237,0.08);
+  transform: scale(1.01);
+}
+.upload-zone.drag-over {
+  border-color: var(--violet-light);
+  background: rgba(124,58,237,0.14);
+  transform: scale(1.01);
+}
+.upload-icon {
+  font-size: 52px;
+  display: block;
+  margin-bottom: 14px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.upload-zone h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.upload-zone p  { font-size: 13px; color: var(--text-muted); }
+
+/* ─── LOGIN PAGE ─── */
+.login-page {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+.login-page.active { display: flex; }
+.login-card {
+  background: rgba(28,23,48,0.9);
+  backdrop-filter: blur(30px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 48px;
+  width: 420px;
+  animation: pageIn 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.login-card .logo { justify-content: center; font-size: 26px; margin-bottom: 10px; }
+.login-subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 36px; }
+.form-group { margin-bottom: 18px; }
+.form-label { font-size: 12px; font-weight: 600; letter-spacing: 0.5px; color: var(--text-mid); margin-bottom: 8px; display: block; }
+.form-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: var(--white);
+  font-size: 14px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: var(--transition);
+}
+.form-input:focus { border-color: rgba(124,58,237,0.7); background: rgba(124,58,237,0.08); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+.form-input::placeholder { color: var(--text-muted); }
+.role-toggle { display: flex; gap: 10px; margin-bottom: 24px; }
+.role-btn {
+  flex: 1; padding: 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.role-btn.active, .role-btn:hover { background: rgba(124,58,237,0.2); border-color: rgba(124,58,237,0.5); color: var(--white); }
+.btn-login {
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, var(--violet), #9333ea);
+  border: none; border-radius: var(--radius-sm);
+  color: #fff; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: 'Syne', sans-serif;
+  transition: var(--transition);
+  box-shadow: 0 4px 24px rgba(124,58,237,0.45);
+}
+.btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,0.6); }
+
+/* ─── LOGIN OPTIONS ─── */
+.login-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.login-option {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.login-option:hover {
+  background: rgba(124,58,237,0.1);
+  border-color: rgba(124,58,237,0.3);
+  transform: translateY(-2px);
+}
+
+.login-option-icon {
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(124,58,237,0.15);
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.login-option-content {
+  flex: 1;
+}
+
+.login-option-content h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--white);
+}
+
+.login-option-content p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.login-option-arrow {
+  font-size: 20px;
+  color: var(--violet-light);
+  transition: var(--transition);
+}
+
+.login-option:hover .login-option-arrow {
+  transform: translateX(4px);
+}
+
+.btn-back {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-top: 12px;
+}
+
+.btn-back:hover {
+  background: var(--card);
+  color: var(--white);
+  border-color: rgba(255,255,255,0.2);
+}
+
+/* ─── ANIMATED GRADIENT TEXT ─── */
+.grad-text {
+  background: linear-gradient(90deg, var(--violet-light), var(--sky), var(--rose), var(--violet-light));
+  background-size: 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer { to { background-position: 300% center; } }
+
+/* ─── NOTIFICATION DOT ─── */
+.notif {
+  width: 8px; height: 8px;
+  background: var(--rose);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--rose);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
+
+/* ─── STUDY PLAN ─── */
+.plan-timeline { display: flex; flex-direction: column; gap: 0; }
+.plan-week {
+  display: flex; gap: 0;
+  position: relative;
+}
+.plan-week::before {
+  content: '';
+  position: absolute;
+  left: 17px; top: 40px; bottom: -16px;
+  width: 2px;
+  background: linear-gradient(180deg, var(--violet), transparent);
+}
+.plan-week:last-child::before { display: none; }
+.plan-dot-wrap {
+  width: 36px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 8px;
+}
+.plan-dot {
+  width: 14px; height: 14px;
+  background: var(--violet);
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 10px rgba(124,58,237,0.6);
+}
+.plan-content {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  margin-left: 8px;
+  transition: var(--transition);
+}
+.plan-content:hover { border-color: rgba(124,58,237,0.4); transform: translateX(4px); }
+.plan-week-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.plan-week-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+.plan-week-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.topic-chip {
+  background: rgba(124,58,237,0.15);
+  border: 1px solid rgba(124,58,237,0.3);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: var(--violet-light);
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.35); border-radius: 999px; }
+</style>
 </head>
 <body>
-<div id="root"></div>
-<!-- Orbs -->
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
 
-<!-- ════ FLOATING NAV ════ -->
-<nav class="float-nav" id="floatNav">
-  <div class="nav-logo">
-    <div class="nav-logo-fox">🎓</div>
-    <span class="nav-logo-text">EduAgent</span>
-  </div>
+<div class="ambient"></div>
 
-  <div class="nav-pill active" id="npDash" onclick="go('dash')">
-    <span class="pip"></span>
-    <span class="nav-icon">⬡</span> Dashboard
-  </div>
-  <div class="nav-pill" id="npUpload" onclick="go('upload')">
-    <span class="pip"></span>
-    <span class="nav-icon">↑</span> Upload
-  </div>
-  <div class="nav-pill" id="npEval" onclick="go('eval')">
-    <span class="pip"></span>
-    <span class="nav-icon">◈</span> Evaluate
-  </div>
-  <div class="nav-pill" id="npStudents" onclick="go('students')">
-    <span class="pip"></span>
-    <span class="nav-icon">◎</span> Students
-  </div>
-  <div class="nav-pill" id="npFeedback" onclick="go('feedback')">
-    <span class="pip"></span>
-    <span class="nav-icon">✦</span> Feedback
-  </div>
-  <div class="nav-pill" id="npPlan" onclick="go('plan')">
-    <span class="pip"></span>
-    <span class="nav-icon">≡</span> Study Plan
-  </div>
-
-  <div class="nav-wallet" onclick="go('login')">
-    <div class="wallet-avatar"></div>
-    <span class="wallet-addr" id="walletLabel">0xRK…4f2a</span>
-  </div>
-</nav>
-
-<!-- ════ LOGIN ════ -->
+<!-- ════ LOGIN SELECTION ════ -->
 <div class="page active" id="page-login">
-  <div class="login-wrap">
-    <div class="login-fox">🎓</div>
-    <div class="login-title">EduAgent AI</div>
-    <div class="login-sub">Intelligence layer for modern education</div>
-
-    <div class="role-row">
-      <div class="role-chip on" id="rcTeacher" onclick="setRole('teacher')">🧑‍🏫 &nbsp;Teacher</div>
-      <div class="role-chip"    id="rcStudent" onclick="setRole('student')">🎓 &nbsp;Student</div>
+  <div class="login-card">
+    <div class="logo">
+      <div class="logo-icon">🎓</div>
+      <span>EduAgent</span>&nbsp;AI
     </div>
-
-    <div class="field"><label>Email</label><input type="email" placeholder="you@school.edu"/></div>
-    <div class="field"><label>Password</label><input type="password" placeholder="••••••••"/></div>
-
-    <button class="btn-orange" onclick="enterApp()">Unlock →</button>
-
-    <div class="divider"><span>or continue with</span></div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-g" style="flex:1;justify-content:center;">🔑 &nbsp;SSO</button>
-      <button class="btn btn-g" style="flex:1;justify-content:center;">🏫 &nbsp;Google</button>
+    <p class="login-subtitle">AI-powered education intelligence platform</p>
+    
+    <div class="login-options">
+      <div class="login-option" onclick="showTeacherLogin()">
+        <div class="login-option-icon">🧑‍🏫</div>
+        <div class="login-option-content">
+          <h3>Teacher Portal</h3>
+          <p>Manage classes, evaluate scripts, and track student progress</p>
+        </div>
+        <div class="login-option-arrow">→</div>
+      </div>
+      
+      <div class="login-option" onclick="showStudentLogin()">
+        <div class="login-option-icon">🎓</div>
+        <div class="login-option-content">
+          <h3>Student Portal</h3>
+          <p>View your results, get AI feedback, and track your progress</p>
+        </div>
+        <div class="login-option-arrow">→</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ════ DASHBOARD ════ -->
-<div class="page" id="page-dash">
-<div class="section">
-
-  <!-- Account strip -->
-  <div class="mm-card glow" style="margin-bottom:16px;">
-    <div class="account-strip">
-      <div class="account-jazzicon"></div>
-      <div class="account-info">
-        <div class="account-name" id="acName">Ravi Kumar</div>
-        <div class="account-address mono" id="acAddr">ID: EDU-0x4f2a · Class Admin</div>
-      </div>
-      <div>
-        <div class="account-badge" id="acRole">Teacher</div>
-        <div class="net-dot" style="margin-top:6px;justify-content:flex-end;">Live</div>
-      </div>
+<!-- ════ TEACHER LOGIN ════ -->
+<div class="page" id="page-teacher-login">
+  <div class="login-card">
+    <div class="logo">
+      <div class="logo-icon">🧑‍🏫</div>
+      <span>Teacher Portal</span>
     </div>
-
-    <div class="balance-big">
-      <div class="balance-label">Overall Class Score</div>
-      <div class="balance-value">76.4<span style="font-size:22px;color:rgba(255,255,255,0.3)"> avg</span></div>
-      <div class="balance-delta">↑ 2.3 pts from last term</div>
+    <p class="login-subtitle">Sign in to manage your classes</p>
+    
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" type="email" id="teacherEmailInput" placeholder="teacher@school.edu"/>
     </div>
-
-    <div class="action-row">
-      <div class="action-btn primary" onclick="go('upload')">
-        <div class="action-icon-wrap">📤</div>
-        <div class="action-label">Upload</div>
-      </div>
-      <div class="action-btn" onclick="go('eval')">
-        <div class="action-icon-wrap">🤖</div>
-        <div class="action-label">Evaluate</div>
-      </div>
-      <div class="action-btn" onclick="go('students')">
-        <div class="action-icon-wrap">👥</div>
-        <div class="action-label">Students</div>
-      </div>
-      <div class="action-btn" onclick="go('feedback')">
-        <div class="action-icon-wrap">💡</div>
-        <div class="action-label">Feedback</div>
-      </div>
-      <div class="action-btn" onclick="go('plan')">
-        <div class="action-icon-wrap">📅</div>
-        <div class="action-label">Study Plan</div>
-      </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="teacherPasswordInput" placeholder="•••••••"/>
     </div>
-  </div>
-
-  <!-- Stats -->
-  <div class="grid-4" style="margin-bottom:16px;">
-    <div class="mini-stat">
-      <div class="mini-stat-label">Students</div>
-      <div class="mini-stat-val white">248</div>
-      <div class="mini-stat-delta up">▲ 12 this month</div>
-    </div>
-    <div class="mini-stat">
-      <div class="mini-stat-label">Scripts</div>
-      <div class="mini-stat-val orange">1,840</div>
-      <div class="mini-stat-delta up">▲ 8% week</div>
-    </div>
-    <div class="mini-stat">
-      <div class="mini-stat-label">AI Accuracy</div>
-      <div class="mini-stat-val green">99.2%</div>
-      <div class="mini-stat-delta up">▲ 0.4% improved</div>
-    </div>
-    <div class="mini-stat">
-      <div class="mini-stat-label">Need Help</div>
-      <div class="mini-stat-val red">12%</div>
-      <div class="mini-stat-delta down">▼ improving</div>
-    </div>
-  </div>
-
-  <!-- Subject assets (like token list) -->
-  <div class="slabel">Subject performance <a onclick="go('students')">View all →</a></div>
-  <div class="mm-card glow" style="margin-bottom:16px;">
-    <div class="token-list">
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(246,133,27,0.1);">➕</div>
-        <div><div class="token-name">Mathematics</div><div class="token-sub">Algebra · Calculus · Statistics</div></div>
-        <div class="token-val">
-          <div class="token-amount">87.2</div>
-          <div class="token-change up">▲ 3.1 pts</div>
-        </div>
-      </div>
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(59,130,246,0.1);">🔬</div>
-        <div><div class="token-name">Science</div><div class="token-sub">Physics · Chemistry · Bio</div></div>
-        <div class="token-val">
-          <div class="token-amount">72.5</div>
-          <div class="token-change down">▼ 1.8 pts</div>
-        </div>
-      </div>
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(34,197,94,0.1);">📖</div>
-        <div><div class="token-name">English</div><div class="token-sub">Grammar · Literature · Composition</div></div>
-        <div class="token-val">
-          <div class="token-amount">79.4</div>
-          <div class="token-change up">▲ 5.6 pts</div>
-        </div>
-      </div>
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(234,179,8,0.1);">📜</div>
-        <div><div class="token-name">History</div><div class="token-sub">Modern · Ancient · World</div></div>
-        <div class="token-val">
-          <div class="token-amount">68.1</div>
-          <div class="token-change down">▼ 2.2 pts</div>
-        </div>
-      </div>
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(168,85,247,0.1);">💻</div>
-        <div><div class="token-name">Computer Science</div><div class="token-sub">Algorithms · Data Structures</div></div>
-        <div class="token-val">
-          <div class="token-amount">91.7</div>
-          <div class="token-change up">▲ 6.4 pts</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Recent activity -->
-  <div class="slabel">Recent evaluations <a onclick="go('eval')">See all →</a></div>
-  <div class="mm-card glow">
-    <div class="activity-item">
-      <div class="activity-dot eval">🤖</div>
-      <div>
-        <div class="activity-name">Ananya Sharma — Mathematics</div>
-        <div class="activity-sub">28 Mar 2026 · AI evaluated · 2.4s</div>
-      </div>
-      <div class="activity-score" style="color:var(--green)">92</div>
-    </div>
-    <div class="activity-item">
-      <div class="activity-dot eval">🤖</div>
-      <div>
-        <div class="activity-name">Rohan Patel — Science</div>
-        <div class="activity-sub">27 Mar 2026 · Reviewing</div>
-      </div>
-      <div class="activity-score" style="color:var(--yellow)">74</div>
-    </div>
-    <div class="activity-item">
-      <div class="activity-dot down">⚠</div>
-      <div>
-        <div class="activity-name">Priya Nair — English</div>
-        <div class="activity-sub">26 Mar 2026 · Needs review</div>
-      </div>
-      <div class="activity-score" style="color:var(--red)">58</div>
-    </div>
-    <div class="activity-item">
-      <div class="activity-dot up">✓</div>
-      <div>
-        <div class="activity-name">Karthik Rajan — History</div>
-        <div class="activity-sub">25 Mar 2026 · Confirmed</div>
-      </div>
-      <div class="activity-score" style="color:var(--green)">88</div>
-    </div>
-  </div>
-
-</div>
-</div>
-
-<!-- ════ UPLOAD ════ -->
-<div class="page" id="page-upload">
-<div class="section">
-  <div class="page-head">
-    <div><h1>Upload Scripts</h1><div class="sub">Drag & drop or browse answer sheets</div></div>
-    <button class="btn btn-o">⚡ Auto-Evaluate All</button>
-  </div>
-
-  <div class="drop-zone" id="dropZone"
-    ondragover="event.preventDefault();this.classList.add('drag')"
-    ondragleave="this.classList.remove('drag')"
-    ondrop="event.preventDefault();this.classList.remove('drag');showFiles()">
-    <span class="drop-zone-icon">📄</span>
-    <h3>Drop answer scripts here</h3>
-    <p style="margin-bottom:16px;">PDF, JPEG, PNG · up to 50 MB each</p>
-    <button class="btn btn-o" style="margin:0 auto;">Browse Files</button>
-  </div>
-
-  <div id="fileList" style="display:none;margin-top:16px;">
-    <div class="slabel" style="margin-bottom:12px;">Queued files</div>
-    <div class="mm-card glow">
-      <table class="mm-table">
-        <thead><tr><th>File</th><th>Student</th><th>Subject</th><th>Size</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-          <tr>
-            <td class="mono">script_ananya_math.pdf</td>
-            <td>Ananya Sharma</td><td>Mathematics</td><td>2.4 MB</td>
-            <td><span class="pill pill-orange">Processing…</span></td>
-            <td><button class="btn btn-sm btn-g">Cancel</button></td>
-          </tr>
-          <tr>
-            <td class="mono">script_rohan_sci.jpg</td>
-            <td>Rohan Patel</td><td>Science</td><td>1.8 MB</td>
-            <td><span class="pill pill-green">OCR Done</span></td>
-            <td><button class="btn btn-sm btn-o" onclick="go('eval')">Evaluate →</button></td>
-          </tr>
-          <tr>
-            <td class="mono">script_priya_eng.pdf</td>
-            <td>Priya Nair</td><td>English</td><td>3.1 MB</td>
-            <td><span class="pill pill-blue">Queued</span></td>
-            <td><button class="btn btn-sm btn-g">Cancel</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- OCR info -->
-  <div style="margin-top:16px;" class="mm-card glow">
-    <div style="padding:18px 20px;">
-      <div class="slabel" style="margin-bottom:10px;">OCR Engine Status</div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="net-dot">Active · 3 workers</div>
-        <div style="flex:1;">
-          <div class="prog-track"><div class="prog-fill" style="width:68%"></div></div>
-        </div>
-        <div style="font-size:12px;color:var(--t3);">68% queue processed</div>
-      </div>
-    </div>
+    <button class="btn-login" onclick="teacherLogin()">Sign in as Teacher →</button>
+    <button class="btn-back" onclick="backToLoginSelection()">← Back to selection</button>
   </div>
 </div>
+
+<!-- ════ STUDENT LOGIN ════ -->
+<div class="page" id="page-student-login">
+  <div class="login-card">
+    <div class="logo">
+      <div class="logo-icon">🎓</div>
+      <span>Student Portal</span>
+    </div>
+    <p class="login-subtitle">Sign in to view your results</p>
+    
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" type="email" id="studentEmailInput" placeholder="student@school.edu"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="studentPasswordInput" placeholder="•••••••"/>
+    </div>
+    <button class="btn-login" onclick="studentLogin()">Sign in as Student →</button>
+    <button class="btn-back" onclick="backToLoginSelection()">← Back to selection</button>
+  </div>
 </div>
+<!-- ════ APP ════ -->
+<div class="app" id="appShell" style="display:none;">
 
-<!-- ════ EVALUATE ════ -->
-<div class="page" id="page-eval">
-<div class="section">
-  <div class="page-head">
-    <div><h1>AI Evaluation</h1><div class="sub">Script #1 of 3 in queue</div></div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-g">← Prev</button>
-      <button class="btn btn-o">Next →</button>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">🎓</div>
+      <span>EduAgent</span>
     </div>
-  </div>
 
-  <!-- Student strip -->
-  <div class="mm-card glow" style="margin-bottom:16px;">
-    <div class="account-strip">
-      <div class="account-jazzicon" style="background:conic-gradient(#22c55e 0deg,#16a34a 120deg,#1f1f27 120deg,#1f1f27 240deg,#4ade80 240deg);"></div>
-      <div class="account-info">
-        <div class="account-name">Ananya Sharma</div>
-        <div class="account-address mono">ID: STU-0x7c9b · Class 11B</div>
+    <div class="nav-section">
+      <div class="nav-label">Main</div>
+      <div class="nav-item active" onclick="goto('teacher')">
+        <span class="nav-icon">🏠</span> Dashboard
       </div>
-      <span class="pill pill-green">AI Evaluated</span>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <!-- Answer panel -->
-    <div class="mm-card glow">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;">📝 OCR Extracted Answer</div>
-      <div style="padding:18px 20px;font-size:13px;line-height:1.9;color:var(--t2);font-family:'Space Mono',monospace;min-height:180px;">
-        To find roots of x² + 5x + 6 = 0<br/>
-        using factorisation method:<br/><br/>
-        Find: a×b = 6, a+b = 5 → 2, 3<br/>
-        ∴ (x + 2)(x + 3) = 0<br/>
-        x = −2 &nbsp;or&nbsp; x = −3<br/><br/>
-        Verify: (−2)²+5(−2)+6 = 0 ✓<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(−3)²+5(−3)+6 = 0 ✓
+      <div class="nav-item" onclick="goto('upload')">
+        <span class="nav-icon">📤</span> Upload Scripts
+      </div>
+      <div class="nav-item" onclick="goto('evaluation')">
+        <span class="nav-icon">🤖</span> Evaluation
+        <span class="nav-badge" id="evalBadge">3</span>
+      </div>
+      <div class="nav-item" onclick="goto('students')">
+        <span class="nav-icon">👥</span> Students
       </div>
     </div>
 
-    <!-- Score panel -->
-    <div class="mm-card glow">
-      <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;">🎯 AI Score</div>
-      <div class="ring-wrap">
-        <div class="ring">
-          <svg width="130" height="130" viewBox="0 0 130 130">
-            <circle class="ring-track" cx="65" cy="65" r="55" fill="none" stroke-width="10"/>
-            <circle class="ring-fill" cx="65" cy="65" r="55" fill="none" stroke="var(--orange)" stroke-width="10" stroke-linecap="round"/>
-          </svg>
-          <div class="ring-inner">
-            <div class="ring-num">92</div>
-            <div class="ring-sub">/ 100</div>
+    <div class="nav-section" style="margin-top:12px;">
+      <div class="nav-label">Student View</div>
+      <div class="nav-item" onclick="goto('student-dash')">
+        <span class="nav-icon">📊</span> My Results
+      </div>
+      <div class="nav-item" onclick="goto('feedback')">
+        <span class="nav-icon">💡</span> AI Feedback
+        <div class="notif" id="feedbackNotif" style="margin-left:auto;"></div>
+      </div>
+      <div class="nav-item" onclick="goto('study-plan')">
+        <span class="nav-icon">📅</span> Study Plan
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" onclick="logout()">
+        <div class="avatar" id="sidebarAvatar">RK</div>
+        <div>
+          <div class="user-name" id="sidebarName">Ravi Kumar</div>
+          <div class="user-role" id="sidebarRole">Teacher · Admin</div>
+        </div>
+      </div>
+      <button class="btn-back" onclick="logout()" style="margin-top: 12px; width: 100%;">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- TEACHER FLOATING NAVIGATION -->
+  <nav class="float-nav" id="teacherFloatNav">
+    <div class="nav-pill" id="teacherNpDash" onclick="goto('teacher')">
+      <span class="pip"></span>
+      <span class="nav-icon">🏠</span> Dashboard
+    </div>
+    <div class="nav-pill" id="teacherNpUpload" onclick="goto('upload')">
+      <span class="pip"></span>
+      <span class="nav-icon">📤</span> Upload Scripts
+    </div>
+    <div class="nav-pill" id="teacherNpEval" onclick="goto('evaluation')">
+      <span class="pip"></span>
+      <span class="nav-icon">🤖</span> Evaluation
+      <span class="nav-badge" id="teacherEvalBadge">3</span>
+    </div>
+    <div class="nav-pill" id="teacherNpStudents" onclick="goto('students')">
+      <span class="pip"></span>
+      <span class="nav-icon">👥</span> Students
+    </div>
+    <div class="nav-pill" id="teacherNpFeedback" onclick="goto('feedback')">
+      <span class="pip"></span>
+      <span class="nav-icon">💡</span> Feedback
+    </div>
+    <div class="nav-pill" id="teacherNpPlan" onclick="goto('study-plan')">
+      <span class="pip"></span>
+      <span class="nav-icon">📅</span> Study Plan
+    </div>
+    <div class="nav-wallet" onclick="logout()">
+      <div class="wallet-avatar"></div>
+      <span class="wallet-addr" id="teacherWalletLabel">0xRK…4f2a</span>
+    </div>
+  </nav>
+
+  <!-- STUDENT FLOATING NAVIGATION -->
+  <nav class="float-nav" id="studentFloatNav" style="display:none;">
+    <div class="nav-pill" id="studentNpDash" onclick="goto('student-dash')">
+      <span class="pip"></span>
+      <span class="nav-icon">📊</span> My Results
+    </div>
+    <div class="nav-pill" id="studentNpFeedback" onclick="goto('student-feedback')">
+      <span class="pip"></span>
+      <span class="nav-icon">💡</span> AI Feedback
+    </div>
+    <div class="nav-pill" id="studentNpPlan" onclick="goto('student-plan')">
+      <span class="pip"></span>
+      <span class="nav-icon">📅</span> Study Plan
+    </div>
+    <div class="nav-wallet" onclick="logout()">
+      <div class="wallet-avatar"></div>
+      <span class="wallet-addr" id="studentWalletLabel">0xAS…7c9b</span>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ── TEACHER DASHBOARD ── -->
+    <div class="page active" id="page-teacher">
+      <div class="topbar">
+        <h2>🏠 Teacher Dashboard</h2>
+        <div class="topbar-right">
+          <input class="search-input" placeholder="🔍 Search students…"/>
+          <button class="btn btn-primary" onclick="goto('upload')">+ Upload</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card violet">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value grad-text">248</div>
+            <div class="stat-label">Total Students</div>
+            <div class="stat-delta up">▲ 12% this month</div>
+          </div>
+          <div class="stat-card rose">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value" style="color:var(--rose)">1,840</div>
+            <div class="stat-label">Scripts Evaluated</div>
+            <div class="stat-delta up">▲ 8% this week</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" style="color:var(--amber)">76.4</div>
+            <div class="stat-label">Average Score</div>
+            <div class="stat-delta down">▼ 2.1 pts</div>
+          </div>
+          <div class="stat-card teal">
+            <div class="stat-icon">🤖</div>
+            <div class="stat-value" style="color:var(--teal)">99.2%</div>
+            <div class="stat-label">AI Accuracy</div>
+            <div class="stat-delta up">▲ 0.4% improved</div>
           </div>
         </div>
-      </div>
-      <div style="padding:0 20px 16px;display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
-          <span style="color:var(--t3);">Concept accuracy</span><span style="color:var(--green);font-weight:700;">Excellent</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
-          <span style="color:var(--t3);">Steps shown</span><span style="color:var(--green);font-weight:700;">Complete</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
-          <span style="color:var(--t3);">Verification</span><span style="color:var(--green);font-weight:700;">Both roots ✓</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--bg3);border-radius:var(--r-xs);font-size:12px;">
-          <span style="color:var(--t3);">Alt. method</span><span style="color:var(--yellow);font-weight:700;">Not shown</span>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- AI feedback card -->
-  <div class="mm-card glow">
-    <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:1px;">🤖 AI Feedback</div>
-    <div style="padding:18px 20px;font-size:13px;line-height:1.9;color:var(--t2);">
-      Excellent work. Ananya demonstrates clear mastery of quadratic factorisation with a textbook-quality step-by-step solution. Both roots verified correctly — this is rare and shows mathematical maturity.
-      <br/><br/>
-      <span style="color:var(--yellow)">⚠ Minor:</span> No mention of domain restriction or alternative quadratic formula method. 
-      <span style="color:var(--red)">−8 marks</span> deducted for omitting the real number domain statement.
-    </div>
-    <div style="padding:12px 20px 16px;display:flex;gap:8px;">
-      <button class="btn btn-o btn-sm">✓ Confirm Score</button>
-      <button class="btn btn-g btn-sm">✎ Override</button>
-      <button class="btn btn-g btn-sm">📤 Send to Student</button>
-    </div>
-  </div>
-
-</div>
-</div>
-
-<!-- ════ STUDENTS ════ -->
-<div class="page" id="page-students">
-<div class="section">
-  <div class="page-head">
-    <div><h1>Students</h1><div class="sub">248 enrolled · Term 2 2025–26</div></div>
-    <button class="btn btn-o">+ Add Student</button>
-  </div>
-
-  <div class="mm-card glow">
-    <table class="mm-table">
-      <thead>
-        <tr><th>Student</th><th>Class</th><th>Average</th><th>Progress</th><th>Status</th><th></th></tr>
-      </thead>
-      <tbody>
-        <tr onclick="go('feedback')">
-          <td><div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(var(--orange) 0deg,var(--orange3) 120deg,#1a1a1a 120deg);flex-shrink:0;border:1px solid rgba(246,133,27,0.3);"></div>
-            <div><div style="font-weight:700;font-size:13px;">Ananya Sharma</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x7c9b</div></div>
-          </div></td>
-          <td>11B</td>
-          <td style="color:var(--green);font-weight:800;font-size:15px;">89.2</td>
-          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:89%"></div></div></div></td>
-          <td><span class="pill pill-green">On Track</span></td>
-          <td><button class="btn btn-sm btn-g">View →</button></td>
-        </tr>
-        <tr onclick="go('feedback')">
-          <td><div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#3b82f6 0deg,#1d4ed8 180deg,#1a1a1a 180deg);flex-shrink:0;border:1px solid rgba(59,130,246,0.3);"></div>
-            <div><div style="font-weight:700;font-size:13px;">Rohan Patel</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x3a4d</div></div>
-          </div></td>
-          <td>11A</td>
-          <td style="color:var(--yellow);font-weight:800;font-size:15px;">72.5</td>
-          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:72%;background:linear-gradient(90deg,var(--yellow),#ca8a04)"></div></div></div></td>
-          <td><span class="pill pill-yellow">Improving</span></td>
-          <td><button class="btn btn-sm btn-g">View →</button></td>
-        </tr>
-        <tr onclick="go('feedback')">
-          <td><div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#ec4899 0deg,#db2777 180deg,#1a1a1a 180deg);flex-shrink:0;border:1px solid rgba(236,72,153,0.3);"></div>
-            <div><div style="font-weight:700;font-size:13px;">Priya Nair</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x9f1e</div></div>
-          </div></td>
-          <td>10C</td>
-          <td style="color:var(--red);font-weight:800;font-size:15px;">58.1</td>
-          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:58%;background:linear-gradient(90deg,var(--red),#991b1b)"></div></div></div></td>
-          <td><span class="pill pill-red">Needs Help</span></td>
-          <td><button class="btn btn-sm btn-g">View →</button></td>
-        </tr>
-        <tr onclick="go('feedback')">
-          <td><div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#22c55e 0deg,#16a34a 240deg,#1a1a1a 240deg);flex-shrink:0;border:1px solid rgba(34,197,94,0.3);"></div>
-            <div><div style="font-weight:700;font-size:13px;">Karthik Rajan</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0x2b8c</div></div>
-          </div></td>
-          <td>12A</td>
-          <td style="color:var(--green);font-weight:800;font-size:15px;">91.7</td>
-          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:92%"></div></div></div></td>
-          <td><span class="pill pill-green">Excellent</span></td>
-          <td><button class="btn btn-sm btn-g">View →</button></td>
-        </tr>
-        <tr>
-          <td><div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:30px;height:30px;border-radius:50%;background:conic-gradient(#a78bfa 0deg,#7c3aed 180deg,#1a1a1a 180deg);flex-shrink:0;border:1px solid rgba(167,139,250,0.3);"></div>
-            <div><div style="font-weight:700;font-size:13px;">Meera Iyer</div><div class="mono" style="font-size:10px;color:var(--t3);">STU-0xd3f7</div></div>
-          </div></td>
-          <td>10B</td>
-          <td style="color:var(--orange);font-weight:800;font-size:15px;">80.4</td>
-          <td><div style="width:100px;"><div class="prog-track"><div class="prog-fill" style="width:80%"></div></div></div></td>
-          <td><span class="pill pill-orange">On Track</span></td>
-          <td><button class="btn btn-sm btn-g">View →</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-</div>
-
-<!-- ════ FEEDBACK ════ -->
-<div class="page" id="page-feedback">
-<div class="section">
-  <div class="page-head">
-    <div><h1>AI Feedback</h1><div class="sub">Ananya Sharma · Last 6 evaluations</div></div>
-    <span class="pill pill-orange" style="font-size:12px;padding:6px 14px;">🤖 AI Generated</span>
-  </div>
-
-  <!-- Student score card -->
-  <div class="mm-card glow" style="margin-bottom:16px;">
-    <div class="balance-big" style="padding:20px 24px 16px;">
-      <div class="balance-label">Average Score</div>
-      <div class="balance-value">89.2</div>
-      <div class="balance-delta">▲ 4.1 pts improvement from last term</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--border);">
-      <div style="padding:14px 20px;border-right:1px solid var(--border);">
-        <div style="font-size:10px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Best Subject</div>
-        <div style="font-size:15px;font-weight:800;color:var(--green);">CS · 96</div>
-      </div>
-      <div style="padding:14px 20px;border-right:1px solid var(--border);">
-        <div style="font-size:10px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Weakest</div>
-        <div style="font-size:15px;font-weight:800;color:var(--red);">Art · 54</div>
-      </div>
-      <div style="padding:14px 20px;">
-        <div style="font-size:10px;color:var(--t3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Trend</div>
-        <div style="font-size:15px;font-weight:800;color:var(--orange);">↑ Rising</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="slabel" style="margin-bottom:12px;">Strengths</div>
-  <div class="mm-card glow" style="margin-bottom:16px;">
-    <div class="fb-item">
-      <div class="fb-dot s"></div>
-      <div><div class="fb-h">Strong logical reasoning in Mathematics</div><div class="fb-p">Consistently applies step-by-step problem solving. Verification of answers reflects deep understanding and care.</div></div>
-    </div>
-    <div class="fb-item">
-      <div class="fb-dot s"></div>
-      <div><div class="fb-h">Excellent command of English grammar</div><div class="fb-p">Essay structures are well organised with clear topic sentences, strong vocabulary, and coherent arguments.</div></div>
-    </div>
-    <div class="fb-item">
-      <div class="fb-dot s"></div>
-      <div><div class="fb-h">Top performer in Computer Science</div><div class="fb-p">Algorithm implementation is clean and well-commented. 96/100 in the last three consecutive evaluations.</div></div>
-    </div>
-  </div>
-
-  <div class="slabel" style="margin-bottom:12px;">Areas to improve</div>
-  <div class="mm-card glow" style="margin-bottom:16px;">
-    <div class="fb-item">
-      <div class="fb-dot w"></div>
-      <div><div class="fb-h">Science: Diagram labelling</div><div class="fb-p">Biological diagrams are missing key labels in 3 of the last 4 tests. Focus on NCERT chapters 6–9.</div></div>
-    </div>
-    <div class="fb-item">
-      <div class="fb-dot w"></div>
-      <div><div class="fb-h">Art & Design: Composition score dropped</div><div class="fb-p">Down 8 pts from last term. Practising past paper compositions is strongly recommended before next evaluation.</div></div>
-    </div>
-  </div>
-
-  <div class="slabel" style="margin-bottom:12px;">AI Tips</div>
-  <div class="mm-card glow">
-    <div class="fb-item">
-      <div class="fb-dot t"></div>
-      <div><div class="fb-h">20-minute daily weak-subject sessions</div><div class="fb-p">Consistent daily revision outperforms cramming by 3.4× on average. Morning slots are optimal based on your schedule.</div></div>
-    </div>
-    <div class="fb-item">
-      <div class="fb-dot t"></div>
-      <div><div class="fb-h">Create a History timeline chart</div><div class="fb-p">Chronological ordering errors are common. A visual timeline covering Modern India 1857–1947 will lock in those facts fast.</div></div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- ════ STUDY PLAN ════ -->
-<div class="page" id="page-plan">
-<div class="section">
-  <div class="page-head">
-    <div><h1>Study Plan</h1><div class="sub">4-week AI-generated schedule · Ananya Sharma</div></div>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-g">↓ Export</button>
-      <button class="btn btn-o">⟳ Regenerate</button>
-    </div>
-  </div>
-
-  <div class="mm-card glow" style="margin-bottom:16px;padding:14px 20px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--t2);">
-    <span style="font-size:18px;">⚡</span>
-    Generated by <b style="color:var(--orange);">EduAgent AI</b> based on your last 6 scores and upcoming exam calendar. Click any topic to get AI resources.
-  </div>
-
-  <div class="mm-card glow">
-    <div style="padding:8px 20px 4px;">
-      <div class="tl">
-        <div class="tl-row">
-          <div class="tl-spine"><div class="tl-dot"></div><div class="tl-line"></div></div>
-          <div class="tl-body">
-            <div class="tl-week">Week 1 · Apr 1–7</div>
-            <div class="tl-title">Foundation & Gap Analysis</div>
-            <div class="tl-chips">
-              <span class="tl-chip">Science Ch. 6–9</span>
-              <span class="tl-chip">History timelines</span>
-              <span class="tl-chip">Math practice sets</span>
-              <span class="tl-chip">Revision notes</span>
+        <div class="chart-row">
+          <div class="chart-card">
+            <div class="section-title">Score distribution by subject <span>View all →</span></div>
+            <div class="bar-chart">
+              <div class="bar-col"><div class="bar" style="height:90px;animation-delay:0s"></div><div class="bar-label">Math</div></div>
+              <div class="bar-col"><div class="bar rose" style="height:62px;animation-delay:.1s"></div><div class="bar-label">Science</div></div>
+              <div class="bar-col"><div class="bar teal" style="height:78px;animation-delay:.2s"></div><div class="bar-label">English</div></div>
+              <div class="bar-col"><div class="bar amber" style="height:54px;animation-delay:.3s"></div><div class="bar-label">History</div></div>
+              <div class="bar-col"><div class="bar" style="height:102px;animation-delay:.4s"></div><div class="bar-label">CS</div></div>
+              <div class="bar-col"><div class="bar rose" style="height:46px;animation-delay:.5s"></div><div class="bar-label">Art</div></div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="section-title">Class performance</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="color:var(--text-mid)">Excellent (90+)</span><span style="color:var(--emerald);font-weight:700;">18%</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width:18%;background:linear-gradient(90deg,var(--emerald),var(--teal))"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="color:var(--text-mid)">Good (75–89)</span><span style="color:var(--violet-light);font-weight:700;">42%</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width:42%"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="color:var(--text-mid)">Average (60–74)</span><span style="color:var(--amber);font-weight:700;">28%</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width:28%;background:linear-gradient(90deg,var(--amber),#f59e0b88)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;"><span style="color:var(--text-mid)">Needs help (&lt;60)</span><span style="color:var(--rose);font-weight:700;">12%</span></div>
+                <div class="progress-wrap"><div class="progress-bar" style="width:12%;background:linear-gradient(90deg,var(--rose),#f43f5e88)"></div></div>
+              </div>
             </div>
           </div>
         </div>
-        <div class="tl-row">
-          <div class="tl-spine"><div class="tl-dot" style="background:var(--green);box-shadow:0 0 10px rgba(34,197,94,0.6);"></div><div class="tl-line" style="background:linear-gradient(180deg,rgba(34,197,94,0.4),transparent);"></div></div>
-          <div class="tl-body">
-            <div class="tl-week">Week 2 · Apr 8–14</div>
-            <div class="tl-title">Intensive Subject Focus</div>
-            <div class="tl-chips">
-              <span class="tl-chip">Diagram practice</span>
-              <span class="tl-chip">Essay writing</span>
-              <span class="tl-chip">Past papers</span>
-              <span class="tl-chip">Art composition</span>
+
+        <div class="section-title">Recent evaluations <span>View all →</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Student</th><th>Subject</th><th>Score</th><th>Status</th><th>Date</th><th>Action</th></tr>
+            </thead>
+            <tbody id="recentEvals">
+              <tr>
+                <td><b>Ananya Sharma</b></td><td>Mathematics</td>
+                <td><span style="font-weight:700;color:var(--emerald)">92/100</span></td>
+                <td><span class="badge badge-green">Evaluated</span></td>
+                <td style="color:var(--text-muted)">28 Mar 2026</td>
+                <td><button class="btn btn-ghost" style="padding:6px 14px;font-size:12px;" onclick="goto('evaluation')">View →</button></td>
+              </tr>
+              <tr>
+                <td><b>Rohan Patel</b></td><td>Science</td>
+                <td><span style="font-weight:700;color:var(--amber)">74/100</span></td>
+                <td><span class="badge badge-amber">Reviewing</span></td>
+                <td style="color:var(--text-muted)">27 Mar 2026</td>
+                <td><button class="btn btn-ghost" style="padding:6px 14px;font-size:12px;" onclick="goto('evaluation')">View →</button></td>
+              </tr>
+              <tr>
+                <td><b>Priya Nair</b></td><td>English</td>
+                <td><span style="font-weight:700;color:var(--rose)">58/100</span></td>
+                <td><span class="badge badge-rose">Needs Review</span></td>
+                <td style="color:var(--text-muted)">26 Mar 2026</td>
+                <td><button class="btn btn-ghost" style="padding:6px 14px;font-size:12px;" onclick="goto('evaluation')">View →</button></td>
+              </tr>
+              <tr>
+                <td><b>Karthik Rajan</b></td><td>History</td>
+                <td><span style="font-weight:700;color:var(--emerald)">88/100</span></td>
+                <td><span class="badge badge-green">Evaluated</span></td>
+                <td style="color:var(--text-muted)">25 Mar 2026</td>
+                <td><button class="btn btn-ghost" style="padding:6px 14px;font-size:12px;" onclick="goto('evaluation')">View →</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── UPLOAD PAGE ── -->
+    <div class="page" id="page-upload">
+      <div class="topbar">
+        <h2>📤 Upload Answer Scripts</h2>
+        <div class="topbar-right">
+          <button class="btn btn-primary" onclick="startEvaluation()">Start Evaluation</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="upload-zone" id="dropZone"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="event.preventDefault();this.classList.remove('drag-over');handleFileDrop(event)">
+          <span class="upload-icon">📄</span>
+          <h3>Drop answer scripts here</h3>
+          <p>Supports PDF, JPEG, PNG · Max 50MB per file</p>
+          <div style="margin-top:20px;">
+            <button class="btn btn-primary" style="margin:0 auto;" onclick="document.getElementById('fileInput').click()">Browse files</button>
+            <input type="file" id="fileInput" style="display:none;" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
+          </div>
+        </div>
+
+        <div id="uploadedFiles" style="margin-top:24px;display:none;">
+          <div class="section-title">Uploaded files</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>File</th><th>Student</th><th>Subject</th><th>Size</th><th>Status</th></tr></thead>
+              <tbody id="fileTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EVALUATION PAGE ── -->
+    <div class="page" id="page-evaluation">
+      <div class="topbar">
+        <h2>🤖 AI Evaluation</h2>
+        <div class="topbar-right">
+          <button class="btn btn-ghost">← Previous</button>
+          <button class="btn btn-primary">Next Student →</button>
+        </div>
+      </div>
+      <div class="content">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
+          <div class="avatar" style="width:46px;height:46px;font-size:18px;">AS</div>
+          <div>
+            <div style="font-size:18px;font-weight:700;">Ananya Sharma</div>
+            <div style="font-size:13px;color:var(--text-muted);">Mathematics · Class 11B · 28 Mar 2026</div>
+          </div>
+          <span class="badge badge-green" style="margin-left:auto;padding:7px 14px;font-size:13px;">AI Evaluated</span>
+        </div>
+
+        <div class="eval-grid">
+          <div class="eval-panel">
+            <h3>📝 Student's Answer (OCR Extracted)</h3>
+            <div class="eval-answer" id="studentAnswer">
+              To find the roots of x² + 5x + 6 = 0, we use factorisation.<br/><br/>
+              We need two numbers that multiply to 6 and add to 5.<br/><br/>
+              Those numbers are 2 and 3.<br/><br/>
+              So: (x + 2)(x + 3) = 0<br/>
+              Therefore x = −2 or x = −3<br/><br/>
+              Verification: (−2)² + 5(−2) + 6 = 0 ✓
+            </div>
+          </div>
+          <div class="eval-panel">
+            <h3>🎯 AI Score Analysis</h3>
+            <div class="score-ring-wrap">
+              <div class="score-ring">
+                <svg width="140" height="140" viewBox="0 0 140 140">
+                  <circle cx="70" cy="70" r="55" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="12"/>
+                  <circle class="ring-circle" cx="70" cy="70" r="55" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round"/>
+                </svg>
+                <div class="score-ring-value">
+                  <span class="score-ring-num" id="scoreValue">92</span>
+                  <span class="score-ring-label">out of 100</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                <span style="color:var(--text-muted)">Concept accuracy</span>
+                <span style="color:var(--emerald);font-weight:700;">Excellent</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                <span style="color:var(--text-muted)">Steps shown</span>
+                <span style="color:var(--emerald);font-weight:700;">Complete</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                <span style="color:var(--text-muted)">Verification</span>
+                <span style="color:var(--emerald);font-weight:700;">Provided</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                <span style="color:var(--text-muted)">Alternative method</span>
+                <span style="color:var(--amber);font-weight:700;">Not shown</span>
+              </div>
             </div>
           </div>
         </div>
-        <div class="tl-row">
-          <div class="tl-spine"><div class="tl-dot" style="background:var(--blue);box-shadow:0 0 10px rgba(59,130,246,0.6);"></div><div class="tl-line" style="background:linear-gradient(180deg,rgba(59,130,246,0.4),transparent);"></div></div>
-          <div class="tl-body">
-            <div class="tl-week">Week 3 · Apr 15–21</div>
-            <div class="tl-title">Mock Tests & Error Analysis</div>
-            <div class="tl-chips">
-              <span class="tl-chip">Full mock test</span>
-              <span class="tl-chip">Error review</span>
-              <span class="tl-chip">Speed drills</span>
-              <span class="tl-chip">Peer revision</span>
+
+        <div style="margin-top:24px;" class="eval-panel">
+          <h3>🤖 AI-Generated Feedback</h3>
+          <p style="font-size:14px;line-height:1.9;color:var(--text-mid);margin-top:8px;" id="aiFeedback">
+            Excellent work! Ananya demonstrates a strong understanding of quadratic factorisation. The step-by-step approach is clear and verification step shows mathematical maturity. 
+            <span style="color:var(--amber);">Minor improvement:</span> Consider also presenting the quadratic formula method to show versatility.
+            <span style="color:var(--emerald);">8 marks deducted</span> for not stating the domain of the variable.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENTS LIST ── -->
+    <div class="page" id="page-students">
+      <div class="topbar">
+        <h2>👥 All Students</h2>
+        <div class="topbar-right">
+          <input class="search-input" placeholder="🔍 Search…"/>
+          <button class="btn btn-primary">+ Add Student</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Student</th><th>Class</th><th>Avg Score</th><th>Trend</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">AS</div><div><div style="font-weight:600;">Ananya Sharma</div><div style="font-size:11px;color:var(--text-muted);">Class 11B</div></div></div></td>
+                <td>11B</td><td><span style="color:var(--emerald);font-weight:700;">89.2</span></td>
+                <td><div class="progress-wrap" style="width:80px;"><div class="progress-bar" style="width:89%"></div></div></td>
+                <td><span class="badge badge-green">On Track</span></td>
+                <td><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="goto('student-dash')">View</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,var(--rose),var(--amber));">RP</div><div><div style="font-weight:600;">Rohan Patel</div><div style="font-size:11px;color:var(--text-muted);">Class 11A</div></div></div></td>
+                <td>11A</td><td><span style="color:var(--amber);font-weight:700;">72.5</span></td>
+                <td><div class="progress-wrap" style="width:80px;"><div class="progress-bar" style="width:72%;background:linear-gradient(90deg,var(--amber),#f59e0b88)"></div></div></td>
+                <td><span class="badge badge-amber">Improving</span></td>
+                <td><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="goto('student-dash')">View</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,var(--teal),var(--sky));">PN</div><div><div style="font-weight:600;">Priya Nair</div><div style="font-size:11px;color:var(--text-muted);">Class 10C</div></div></div></td>
+                <td>10C</td><td><span style="color:var(--rose);font-weight:700;">58.1</span></td>
+                <td><div class="progress-wrap" style="width:80px;"><div class="progress-bar" style="width:58%;background:linear-gradient(90deg,var(--rose),#f43f5e88)"></div></div></td>
+                <td><span class="badge badge-rose">Needs Help</span></td>
+                <td><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="goto('student-dash')">View</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,var(--emerald),var(--teal));">KR</div><div><div style="font-weight:600;">Karthik Rajan</div><div style="font-size:11px;color:var(--text-muted);">Class 12A</div></div></div></td>
+                <td>12A</td><td><span style="color:var(--emerald);font-weight:700;">91.7</span></td>
+                <td><div class="progress-wrap" style="width:80px;"><div class="progress-bar" style="width:92%"></div></div></td>
+                <td><span class="badge badge-green">Excellent</span></td>
+                <td><button class="btn btn-ghost" style="padding:6px 12px;font-size:12px;" onclick="goto('student-dash')">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STUDENT DASHBOARD ── -->
+    <div class="page" id="page-student-dash">
+      <div class="topbar">
+        <h2>📊 My Results</h2>
+        <div class="topbar-right">
+          <span style="font-size:13px;color:var(--text-muted);">Term 2 · 2025–26</span>
+        </div>
+      </div>
+      <div class="content">
+        <div style="margin-bottom:24px;background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(56,189,248,0.1));border:1px solid rgba(124,58,237,0.3);border-radius:var(--radius);padding:24px;display:flex;align-items:center;gap:24px;">
+          <div class="avatar" style="width:60px;height:60px;font-size:24px;flex-shrink:0;">AS</div>
+          <div>
+            <div style="font-size:22px;font-weight:800;font-family:'Syne',sans-serif;">Ananya Sharma</div>
+            <div style="font-size:13px;color:var(--text-muted);">Class 11B · Roll No. 14 · ananya@school.edu</div>
+          </div>
+          <div style="margin-left:auto;text-align:center;">
+            <div style="font-size:40px;font-weight:800;font-family:'Syne',sans-serif;color:var(--emerald);">89.2</div>
+            <div style="font-size:12px;color:var(--text-muted);">Overall Average</div>
+          </div>
+        </div>
+
+        <div class="section-title">Subject scores</div>
+        <div class="perf-grid">
+          <div class="perf-card">
+            <div class="perf-subject">Mathematics</div>
+            <div class="perf-score high">92</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:92%"></div></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">▲ 4 pts from last test</div>
+          </div>
+          <div class="perf-card">
+            <div class="perf-subject">Science</div>
+            <div class="perf-score mid">78</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:78%;background:linear-gradient(90deg,var(--amber),#f59e0b88)"></div></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">▼ 2 pts from last test</div>
+          </div>
+          <div class="perf-card">
+            <div class="perf-subject">English</div>
+            <div class="perf-score high">84</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:84%"></div></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">▲ 6 pts from last test</div>
+          </div>
+          <div class="perf-card">
+            <div class="perf-subject">History</div>
+            <div class="perf-score mid">71</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:71%;background:linear-gradient(90deg,var(--amber),#f59e0b88)"></div></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">▼ 3 pts from last test</div>
+          </div>
+          <div class="perf-card">
+            <div class="perf-subject">Computer Science</div>
+            <div class="perf-score high">96</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:96%"></div></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">▲ 8 pts from last test</div>
+          </div>
+          <div class="perf-card">
+            <div class="perf-subject">Art & Design</div>
+            <div class="perf-score low">54</div>
+            <div class="progress-wrap"><div class="progress-bar" style="width:54%;background:linear-gradient(90deg,var(--rose),#f43f5e88)"></div></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">▼ 8 pts from last test</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FEEDBACK PAGE ── -->
+    <div class="page" id="page-feedback">
+      <div class="topbar">
+        <h2>💡 AI Feedback</h2>
+        <div class="topbar-right">
+          <span style="font-size:13px;color:var(--text-muted);">Generated by EduAgent AI</span>
+        </div>
+      </div>
+      <div class="content">
+        <div style="background:linear-gradient(135deg,rgba(124,58,237,0.15),rgba(20,184,166,0.08));border:1px solid rgba(124,58,237,0.3);border-radius:var(--radius);padding:20px 24px;margin-bottom:24px;font-size:14px;line-height:1.8;color:var(--text-mid);">
+          🤖 <b style="color:var(--white);">EduAgent AI Analysis</b> — Based on your last 6 evaluations, here's a personalised performance breakdown for <b style="color:var(--violet-light);">Ananya Sharma</b>.
+        </div>
+
+        <div class="section-title">Strengths</div>
+        <div class="feedback-list">
+          <div class="feedback-item">
+            <div class="feedback-dot strength"></div>
+            <div class="feedback-text">
+              <h4>Strong logical reasoning in Mathematics</h4>
+              <p>Consistently applies step-by-step problem solving. Shows verification of answers which reflects deep understanding of mathematical concepts.</p>
+            </div>
+          </div>
+          <div class="feedback-item">
+            <div class="feedback-dot strength"></div>
+            <div class="feedback-text">
+              <h4>Excellent command of English grammar</h4>
+              <p>Essay structures are well organised with clear topic sentences, strong vocabulary, and coherent arguments throughout.</p>
             </div>
           </div>
         </div>
-        <div class="tl-row">
-          <div class="tl-spine"><div class="tl-dot" style="background:var(--yellow);box-shadow:0 0 10px rgba(234,179,8,0.6);"></div></div>
-          <div class="tl-body">
-            <div class="tl-week">Week 4 · Apr 22–28</div>
-            <div class="tl-title">Final Revision & Confidence</div>
-            <div class="tl-chips">
-              <span class="tl-chip">Formula sheets</span>
-              <span class="tl-chip">Quick revision</span>
-              <span class="tl-chip">Light practice</span>
-              <span class="tl-chip">Rest & wellbeing</span>
+
+        <div class="section-title">Areas to improve</div>
+        <div class="feedback-list">
+          <div class="feedback-item">
+            <div class="feedback-dot weakness"></div>
+            <div class="feedback-text">
+              <h4>Science: Diagram labelling needs work</h4>
+              <p>Biological diagrams are missing key labels in 3 of the last 4 tests. Focus on practising labelled diagrams from the NCERT textbook chapters 6–9.</p>
+            </div>
+          </div>
+          <div class="feedback-item">
+            <div class="feedback-dot weakness"></div>
+            <div class="feedback-text">
+              <h4>History: Dates and timeline accuracy</h4>
+              <p>Chronological ordering of events in the Modern India unit has been inconsistent. Creating a timeline revision chart is recommended.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title">AI Tips</div>
+        <div class="feedback-list">
+          <div class="feedback-item">
+            <div class="feedback-dot tip"></div>
+            <div class="feedback-text">
+              <h4>Spend 20 min daily on weak subjects</h4>
+              <p>Your study plan suggests focusing on Science and History in the morning slot. Consistent daily revision outperforms last-minute cramming by 3.4× on average.</p>
+            </div>
+          </div>
+          <div class="feedback-item">
+            <div class="feedback-dot tip"></div>
+            <div class="feedback-text">
+              <h4>Practice past papers for Art & Design</h4>
+              <p>Your Art scores dropped 8 points. Reviewing past question papers and practising composition techniques will help significantly before next evaluation.</p>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Daily schedule preview -->
-  <div style="margin-top:16px;" class="slabel">Daily schedule preview</div>
-  <div class="mm-card glow">
-    <div class="token-list">
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(246,133,27,0.1);font-size:13px;">6AM</div>
-        <div><div class="token-name">Morning session</div><div class="token-sub">Science · 45 min</div></div>
-        <div class="token-val"><span class="pill pill-orange">Priority</span></div>
+    <!-- ── STUDY PLAN ── -->
+    <div class="page" id="page-study-plan">
+      <div class="topbar">
+        <h2>📅 AI Study Plan</h2>
+        <div class="topbar-right">
+          <button class="btn btn-ghost">Download PDF</button>
+          <button class="btn btn-primary">Regenerate Plan</button>
+        </div>
       </div>
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(59,130,246,0.1);font-size:13px;">4PM</div>
-        <div><div class="token-name">Afternoon review</div><div class="token-sub">Mathematics · 30 min</div></div>
-        <div class="token-val"><span class="pill pill-green">Strength</span></div>
-      </div>
-      <div class="token-row">
-        <div class="token-icon" style="background:rgba(234,179,8,0.1);font-size:13px;">7PM</div>
-        <div><div class="token-name">Evening focus</div><div class="token-sub">History · 30 min · weak area</div></div>
-        <div class="token-val"><span class="pill pill-red">Needs Work</span></div>
+      <div class="content">
+        <div style="background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(124,58,237,0.08));border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius);padding:18px 24px;margin-bottom:28px;font-size:13px;color:var(--text-mid);line-height:1.8;">
+          📅 This 4-week plan was generated by <b style="color:var(--amber);">EduAgent AI</b> based on your recent performance data and upcoming exam schedule. Adjust by clicking any week.
+        </div>
+
+        <div class="plan-timeline">
+          <div class="plan-week">
+            <div class="plan-dot-wrap"><div class="plan-dot"></div></div>
+            <div class="plan-content">
+              <div class="plan-week-label">Week 1 · Apr 1–7</div>
+              <div class="plan-week-title">Foundation & Gap Analysis</div>
+              <div class="plan-week-topics">
+                <span class="topic-chip">Science Ch. 6–9</span>
+                <span class="topic-chip">History Timelines</span>
+                <span class="topic-chip">Math Practice Sets</span>
+                <span class="topic-chip">Revision Notes</span>
+              </div>
+            </div>
+          </div>
+          <div class="plan-week">
+            <div class="plan-dot-wrap"><div class="plan-dot" style="background:var(--sky);box-shadow:0 0 10px rgba(56,189,248,0.5);"></div></div>
+            <div class="plan-content">
+              <div class="plan-week-label">Week 2 · Apr 8–14</div>
+              <div class="plan-week-title">Intensive Subject Focus</div>
+              <div class="plan-week-topics">
+                <span class="topic-chip">Diagram Practice</span>
+                <span class="topic-chip">Essay Writing</span>
+                <span class="topic-chip">Past Papers</span>
+                <span class="topic-chip">Art Composition</span>
+              </div>
+            </div>
+          </div>
+          <div class="plan-week">
+            <div class="plan-dot-wrap"><div class="plan-dot" style="background:var(--emerald);box-shadow:0 0 10px rgba(16,185,129,0.5);"></div></div>
+            <div class="plan-content">
+              <div class="plan-week-label">Week 3 · Apr 15–21</div>
+              <div class="plan-week-title">Mock Tests & Review</div>
+              <div class="plan-week-topics">
+                <span class="topic-chip">Full Mock Test</span>
+                <span class="topic-chip">Error Analysis</span>
+                <span class="topic-chip">Speed Drills</span>
+                <span class="topic-chip">Peer Revision</span>
+              </div>
+            </div>
+          </div>
+          <div class="plan-week">
+            <div class="plan-dot-wrap"><div class="plan-dot" style="background:var(--rose);box-shadow:0 0 10px rgba(244,63,94,0.5);"></div></div>
+            <div class="plan-content">
+              <div class="plan-week-label">Week 4 · Apr 22–28</div>
+              <div class="plan-week-title">Final Revision & Confidence</div>
+              <div class="plan-week-topics">
+                <span class="topic-chip">Formula Sheets</span>
+                <span class="topic-chip">Quick Revision</span>
+                <span class="topic-chip">Light Practice</span>
+                <span class="topic-chip">Rest & Wellbeing</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-</div>
+  </main>
 </div>
 
 <script>
-let role = 'teacher';
+// Separate Login Script for Teacher and Student Portals
 
-function setRole(r) {
-  role = r;
-  document.getElementById('rcTeacher').classList.toggle('on', r === 'teacher');
-  document.getElementById('rcStudent').classList.toggle('on', r === 'student');
-}
-
-function enterApp() {
-  go('dash');
-  const isStudent = role === 'student';
-  document.getElementById('acName').textContent    = isStudent ? 'Ananya Sharma' : 'Ravi Kumar';
-  document.getElementById('acAddr').textContent    = isStudent ? 'ID: STU-0x7c9b · Class 11B' : 'ID: EDU-0x4f2a · Class Admin';
-  document.getElementById('acRole').textContent    = isStudent ? 'Student' : 'Teacher';
-  document.getElementById('walletLabel').textContent = isStudent ? '0xAS…7c9b' : '0xRK…4f2a';
-}
-
-const pills = {
-  'dash': 'npDash', 'upload': 'npUpload', 'eval': 'npEval',
-  'students': 'npStudents', 'feedback': 'npFeedback', 'plan': 'npPlan'
-};
-
-function go(id) {
+// Navigation functions for login pages
+function showTeacherLogin() {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
-
-  const pg = document.getElementById('page-' + id);
-  if (pg) pg.classList.add('active');
-
-  const pill = document.getElementById(pills[id]);
-  if (pill) pill.classList.add('active');
-
-  // Hide nav on login
-  document.getElementById('floatNav').style.opacity = (id === 'login') ? '0' : '1';
-  document.getElementById('floatNav').style.pointerEvents = (id === 'login') ? 'none' : 'all';
+  document.getElementById('page-teacher-login').classList.add('active');
 }
 
-function showFiles() {
-  const fl = document.getElementById('fileList');
-  fl.style.display = 'block';
-  fl.style.animation = 'fadeUp 0.35s ease both';
+function showStudentLogin() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-student-login').classList.add('active');
 }
 
-// Start hidden nav
-document.getElementById('floatNav').style.opacity = '0';
-document.getElementById('floatNav').style.pointerEvents = 'none';
-document.getElementById('floatNav').style.transition = 'opacity 0.4s ease';
+function backToLoginSelection() {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-login').classList.add('active');
+}
+
+// Teacher login function
+function teacherLogin() {
+  const email = document.getElementById('teacherEmailInput').value;
+  const password = document.getElementById('teacherPasswordInput').value;
+  
+  console.log('Teacher login attempt:', { email, password });
+  
+  // Demo login check
+  if (email === 'teacher@edu.com' && password === '1234') {
+    alert('Teacher login successful!');
+    document.getElementById('page-teacher-login').classList.remove('active');
+    document.getElementById('appShell').style.display = 'flex';
+    document.getElementById('teacherFloatNav').style.display = 'flex';
+    goto('teacher');
+  } else {
+    alert('Invalid credentials. Use teacher@edu.com / 1234');
+  }
+}
+
+// Student login function
+function studentLogin() {
+  const email = document.getElementById('studentEmailInput').value;
+  const password = document.getElementById('studentPasswordInput').value;
+  
+  console.log('Student login attempt:', { email, password });
+  
+  // Demo login check
+  if (email === 'student@edu.com' && password === '1234') {
+    alert('Student login successful!');
+    document.getElementById('page-student-login').classList.remove('active');
+    document.getElementById('appShell').style.display = 'flex';
+    document.getElementById('studentFloatNav').style.display = 'flex';
+    goto('student-dash');
+  } else {
+    alert('Invalid credentials. Use student@edu.com / 1234');
+  }
+}
+
+// Navigation function for app pages
+function goto(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  
+  // Handle teacher navigation
+  document.querySelectorAll('#teacherFloatNav .nav-pill').forEach(n => n.classList.remove('active'));
+  const teacherPill = document.getElementById('teacherNp' + pageId.charAt(0).toUpperCase() + pageId.slice(1));
+  if (teacherPill) teacherPill.classList.add('active');
+  
+  // Handle student navigation  
+  document.querySelectorAll('#studentFloatNav .nav-pill').forEach(n => n.classList.remove('active'));
+  const studentPill = document.getElementById('studentNp' + pageId.charAt(0).toUpperCase() + pageId.slice(1));
+  if (studentPill) studentPill.classList.add('active');
+}
+
+// Logout function
+function logout() {
+  console.log('🚪 Logging out...');
+  alert('Logged out successfully!');
+  
+  // Hide app and floating navigation
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('teacherFloatNav').style.display = 'none';
+  document.getElementById('studentFloatNav').style.display = 'none';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-login').classList.add('active');
+}
 </script>
 </body>
 </html>

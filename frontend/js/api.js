@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = 'http://localhost:5002/api';
 
 // API Helper Functions
 async function apiCall(endpoint, options = {}) {
@@ -24,52 +24,125 @@ async function apiCall(endpoint, options = {}) {
 }
 
 // Auth API
-export const authAPI = {
-  login: (email, password, role) => 
-    apiCall('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, role })
-    }),
+const authAPI = {
+  login: async (email, password, role) => {
+    try {
+      const response = await apiCall('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, role })
+      });
+      return response;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  },
   
-  register: (userData) => 
-    apiCall('/auth/register', {
-      method: 'POST', 
-      body: JSON.stringify(userData)
-    })
+  register: async (userData) => {
+    try {
+      const response = await apiCall('/auth/register', {
+        method: 'POST', 
+        body: JSON.stringify(userData)
+      });
+      return response;
+    } catch (error) {
+      console.error('Register error:', error);
+      throw error;
+    }
+  }
 };
 
 // Teacher API
-export const teacherAPI = {
-  getStudents: (teacherId) => 
-    apiCall(`/teacher/students/${teacherId}`),
+const teacherAPI = {
+  getStudents: async (teacherId) => {
+    try {
+      const response = await apiCall(`/teacher/students/${teacherId}`);
+      return response;
+    } catch (error) {
+      console.error('Get students error:', error);
+      throw error;
+    }
+  },
   
-  getAnalytics: (teacherId) => 
-    apiCall(`/teacher/analytics/${teacherId}`),
+  getAnalytics: async (teacherId) => {
+    try {
+      const response = await apiCall(`/teacher/analytics/${teacherId}`);
+      return response;
+    } catch (error) {
+      console.error('Get analytics error:', error);
+      throw error;
+    }
+  },
   
-  getSubjects: () => 
-    apiCall('/teacher/subjects')
+  getSubjects: async () => {
+    try {
+      const response = await apiCall('/teacher/subjects');
+      return response;
+    } catch (error) {
+      console.error('Get subjects error:', error);
+      throw error;
+    }
+  }
 };
 
 // Student API  
-export const studentAPI = {
-  getMarks: (studentId) => 
-    apiCall(`/student/marks/${studentId}`),
+const studentAPI = {
+  getMarks: async (studentId) => {
+    try {
+      const response = await apiCall(`/student/marks/${studentId}`);
+      return response;
+    } catch (error) {
+      console.error('Get marks error:', error);
+      throw error;
+    }
+  },
   
-  getPerformance: (studentId) => 
-    apiCall(`/student/performance/${studentId}`),
+  getPerformance: async (studentId) => {
+    try {
+      const response = await apiCall(`/student/performance/${studentId}`);
+      return response;
+    } catch (error) {
+      console.error('Get performance error:', error);
+      throw error;
+    }
+  },
   
-  getFeedback: (studentId, evaluationId) => 
-    apiCall(`/student/feedback/${studentId}/${evaluationId}`)
+  getFeedback: async (studentId, evaluationId) => {
+    try {
+      const response = await apiCall(`/student/feedback/${studentId}/${evaluationId}`);
+      return response;
+    } catch (error) {
+      console.error('Get feedback error:', error);
+      throw error;
+    }
+  }
 };
 
 // Evaluation API
-export const evaluationAPI = {
-  uploadFiles: (formData) => 
-    fetch(`${API_BASE_URL}/evaluate/upload`, {
-      method: 'POST',
-      body: formData
-    }),
+const evaluationAPI = {
+  uploadFiles: async (formData) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/evaluate/upload`, {
+        method: 'POST',
+        body: formData
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Upload files error:', error);
+      throw error;
+    }
+  },
   
-  getResults: (studentId) => 
-    apiCall(`/evaluate/results/${studentId}`)
+  getResults: async (studentId) => {
+    try {
+      const response = await apiCall(`/evaluate/results/${studentId}`);
+      return response;
+    } catch (error) {
+      console.error('Get results error:', error);
+      throw error;
+    }
+  }
 };

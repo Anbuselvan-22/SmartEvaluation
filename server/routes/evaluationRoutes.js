@@ -1,32 +1,27 @@
 const express = require('express');
-const { 
-  processUpload, 
-  getResults, 
-  assignToStudent, 
-  deleteEvaluation,
-  getTeacherEvaluations 
-} = require('../controllers/evaluationController');
-const auth = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploadMiddleware');
-
 const router = express.Router();
+const evaluationController = require('../controllers/evaluationController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// All routes require authentication
-router.use(auth);
+// Test route for simple text evaluation (no auth for testing)
+router.post('/submit', evaluationController.submitTextEvaluation);
 
-// Process uploaded answer sheets (teacher only)
-router.post('/upload', upload.array('files', 10), processUpload);
+// File upload route (already exists)
+router.post('/upload', authMiddleware, evaluationController.processUpload);
 
-// Get evaluation results (student and teacher)
-router.get('/results/:studentId', getResults);
+// Get evaluation results (already exists)
+router.get('/results/:studentId', authMiddleware, evaluationController.getResults);
 
-// Assign evaluation to student (teacher only)
-router.post('/assign', assignToStudent);
+// Get specific evaluation (already exists)
+// router.get('/:evaluationId', authMiddleware, evaluationController.getEvaluationById);
 
-// Delete evaluation (teacher only)
-router.delete('/:evaluationId', deleteEvaluation);
+// Assign evaluation to student (already exists)
+router.post('/assign', authMiddleware, evaluationController.assignToStudent);
+
+// Delete evaluation (already exists)
+router.delete('/:evaluationId', authMiddleware, evaluationController.deleteEvaluation);
 
 // Get all evaluations for teacher
-router.get('/teacher', getTeacherEvaluations);
+router.get('/teacher', authMiddleware, evaluationController.getTeacherEvaluations);
 
 module.exports = router;

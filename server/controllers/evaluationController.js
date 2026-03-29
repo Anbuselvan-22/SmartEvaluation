@@ -3,6 +3,48 @@ const Marks = require('../models/Marks');
 const User = require('../models/User');
 const logger = require('../utils/logger');
 
+// Simple text evaluation (for testing)
+const submitTextEvaluation = async (req, res) => {
+  try {
+    const { answer, subject, studentId } = req.body;
+    
+    if (!answer) {
+      return res.status(400).json({
+        success: false,
+        error: 'Answer text is required'
+      });
+    }
+
+    // Mock AI evaluation (replace with real AI service call)
+    const mockEvaluation = {
+      id: 'EVAL_' + Date.now(),
+      studentId: studentId || 'demo-student',
+      subject: subject || 'Mathematics',
+      answer: answer,
+      score: Math.floor(Math.random() * 30) + 70, // Random score 70-100
+      feedback: 'Good understanding of the concept. Clear steps shown.',
+      strengths: ['Logical reasoning', 'Clear presentation'],
+      weaknesses: ['Could show more detail'],
+      date: new Date().toISOString()
+    };
+
+    // Save to database (mock)
+    console.log('🤖 AI Evaluation:', mockEvaluation);
+
+    res.json({
+      success: true,
+      data: mockEvaluation
+    });
+
+  } catch (error) {
+    console.error('Text evaluation error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Evaluation failed'
+    });
+  }
+};
+
 // Process uploaded answer sheet
 const processUpload = async (req, res) => {
   try {
@@ -237,9 +279,10 @@ const getTeacherEvaluations = async (req, res) => {
 };
 
 module.exports = {
+  submitTextEvaluation,
   processUpload,
   getResults,
   assignToStudent,
   deleteEvaluation,
-  getTeacherEvaluations,
+  getTeacherEvaluations
 };
